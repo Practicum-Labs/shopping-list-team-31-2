@@ -97,4 +97,16 @@ dependencies {
     // Lifecycle
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    detektPlugins(libs.detekt.formatting)
+
+    // Coil
+    implementation(libs.coil3)
+
+    // Gson
+    implementation(libs.gson)
+
+    // Hilt - официальная DI-библиотека от Google, использующая Dagger под капотом
+    implementation(libs.androidx.hilt.navigation.compose)
+    ksp(libs.androidx.hilt.compiler) // Плагин для обработки аннотаций Hilt/Dagger
 }
