@@ -1,6 +1,8 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
+    id("com.google.devtools.ksp")
+    id("io.gitlab.arturbosch.detekt")
 }
 
 android {
@@ -23,7 +25,9 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            signingConfig = signingConfigs.findByName("release")
+            isMinifyEnabled = true
+            isShrinkResources = true
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -34,8 +38,29 @@ android {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
     }
+
+    composeOptions {
+        kotlinCompilerExtensionVersion = libs.versions.composeBom.get()
+    }
+
     buildFeatures {
         compose = true
+    }
+}
+
+detekt {
+    toolVersion = "1.23.8"
+    config = files("$rootDir/detekt-config.yml") // путь к вашему конфигу
+    baseline = file("$rootDir/detekt-baseline.xml") // файл baseline (опционально)
+    reports {
+        html.enabled = true
+        html.destination = file("build/reports/detekt.html")
+        xml.enabled = true
+        xml.destination = file("build/reports/detekt.xml")
+    }
+    // Исключить из анализа ресурсы и build
+    tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
+        exclude("**/resources/**", "**/build/**")
     }
 }
 
@@ -48,6 +73,11 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
+
+    // Preview
+    implementation(libs.androidx.compose.ui.tooling.preview)
+
+    // Тестирование
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
@@ -55,4 +85,29 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
+
+    // Room + KSP
+    implementation(libs.androidx.room.runtime)
+    ksp (libs.androidx.room.compiler)
+    implementation (libs.androidx.room.ktx)
+
+    // Coroutines
+    implementation(libs.kotlinx.coroutines.android)
+
+    // Lifecycle
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+
+    detektPlugins(libs.detekt.formatting)
+
+    // Coil
+    implementation(libs.coil3)
+
+    // Gson
+    implementation(libs.gson)
+    implementation(libs.converter.gson)
+
+    // Hilt - официальная DI-библиотека от Google, использующая Dagger под капотом
+    implementation(libs.androidx.hilt.navigation.compose)
+    ksp(libs.androidx.hilt.compiler) // Плагин для обработки аннотаций Hilt/Dagger
 }

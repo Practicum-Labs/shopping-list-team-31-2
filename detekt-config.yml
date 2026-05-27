@@ -1,0 +1,76 @@
+# Общее поведение сборки при наличии нарушений
+build:
+  # максимально допустимое количество нарушений
+  maxIssues: 100500 # Это нужно, чтобы не упасть сразу после прогона detekt-а, а дождаться остальных утилит.
+  # учитывать ли нарушения, которые можно исправить автоматически
+  excludeCorrectable: false
+  # приоритет категорий сложности
+  weights:
+  # complexity: 2
+  # LongParameterList: 1
+  # style: 1
+  # comments: 1
+
+# Общая конфигурация Detekt
+config:
+  # режим строгой валидации конфигурационного файла при запуске (проверка на ошибки в данном файле)
+  validation: true
+  # определение важности ошибок (true - все ошибки являются критическими)
+  warningsAsErrors: false
+  # регулярные выражения для отключения валидации пользовательских свойств в собственных правилах
+  # when writing own rules with new properties, exclude the property path e.g.: 'my_rule_set,.*>.*>[my_property]'
+  excludes: ''
+
+# Модули, которые собирают дополнительную статистику о проекте во время анализа
+processors:
+  # Включает использование процессоров для статистики
+  active: true
+  # Список процессоров, которые нужно отключить (для отключение указать #)
+  exclude:
+    - 'DetektProgressListener'
+  # - 'KtFileCountProcessor'
+  # - 'PackageCountProcessor'
+  # - 'ClassCountProcessor'
+  # - 'FunctionCountProcessor'
+  # - 'PropertyCountProcessor'
+  # - 'ProjectComplexityProcessor'
+  # - 'ProjectCognitiveComplexityProcessor'
+  # - 'ProjectLLOCProcessor'
+  # - 'ProjectCLOCProcessor'
+  # - 'ProjectLOCProcessor'
+  # - 'ProjectSLOCProcessor'
+  # - 'LicenseHeaderLoaderExtension'
+
+# Управление отчетами, которые выводятся в консоль
+console-reports:
+  active: true
+  exclude: [ ]
+
+# Генерация отчетов в отдельные файлы
+output-reports:
+  active: true
+  exclude: [ ]
+
+complexity:
+  active: true
+
+  # Лимит на количество строк кода внутри тела функции
+  LongMethod:
+    active: true
+    threshold: 50
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    ignoreAnnotated: [ "Composable" ]
+
+  # Лимит на количество параметров функции
+  LongParameterList:
+    active: true
+    functionThreshold: 6
+    constructorThreshold: 7
+    ignoreDefaultParameters: true
+    ignoreDataClasses: true
+    ignoreAnnotated: [ "Inject", "InjectConstructor", "Composable" ]
+
+  # Лимит на размер класса (количество строк во всем классе)
+  LargeClass:
+    active: true
+    threshold: 350
