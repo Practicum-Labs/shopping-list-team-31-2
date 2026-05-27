@@ -1,4 +1,4 @@
-package ru.practicum.shoppinglist
+package ru.practicum.shoppinglist.ui.main
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
