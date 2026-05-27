@@ -105,6 +105,7 @@ dependencies {
 
     // Gson
     implementation(libs.gson)
+    implementation(libs.converter.gson)
 
     // Hilt - официальная DI-библиотека от Google, использующая Dagger под капотом
     implementation(libs.androidx.hilt.navigation.compose)
