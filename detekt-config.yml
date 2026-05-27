@@ -52,14 +52,25 @@ output-reports:
   exclude: [ ]
 
 complexity:
+  active: true
+
   # Лимит на количество строк кода внутри тела функции
-  functionBodyLength:
+  LongMethod:
+    active: true
     threshold: 50
+    excludes: [ '**/test/**', '**/androidTest/**', '**/commonTest/**', '**/jvmTest/**', '**/jsTest/**', '**/iosTest/**' ]
+    ignoreAnnotated: [ "Composable" ]
 
   # Лимит на количество параметров функции
-  longParameterList:
-    maxParameters: 6
+  LongParameterList:
+    active: true
+    functionThreshold: 6
+    constructorThreshold: 7
+    ignoreDefaultParameters: true
+    ignoreDataClasses: true
+    ignoreAnnotated: [ "Inject", "InjectConstructor", "Composable" ]
 
   # Лимит на размер класса (количество строк во всем классе)
-  largeClass:
+  LargeClass:
+    active: true
     threshold: 350
