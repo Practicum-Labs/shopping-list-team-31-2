@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("io.gitlab.arturbosch.detekt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -107,7 +108,14 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.converter.gson)
 
-    // Hilt - официальная DI-библиотека от Google, использующая Dagger под капотом
+    // Hilt
     implementation(libs.androidx.hilt.navigation.compose)
-    ksp(libs.androidx.hilt.compiler) // Плагин для обработки аннотаций Hilt/Dagger
+    ksp(libs.androidx.hilt.compiler)
+
+    // Dagger Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+
+
 }
