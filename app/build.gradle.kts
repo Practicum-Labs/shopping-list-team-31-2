@@ -54,10 +54,10 @@ detekt {
     config = files("$rootDir/detekt-config.yml") // путь к вашему конфигу
     baseline = file("$rootDir/detekt-baseline.xml") // файл baseline (опционально)
     reports {
-        html.enabled = true
-        html.destination = file("build/reports/detekt.html")
-        xml.enabled = true
-        xml.destination = file("build/reports/detekt.xml")
+        html.required.set(true)
+        html.outputLocation.set(file("build/reports/detekt.html"))
+        xml.required.set(true)
+        xml.outputLocation.set(file("build/reports/detekt.xml"))
     }
     // Исключить из анализа ресурсы и build
     tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
