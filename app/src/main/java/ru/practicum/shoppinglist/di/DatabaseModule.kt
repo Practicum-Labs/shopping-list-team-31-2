@@ -7,9 +7,9 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import javax.inject.Singleton
 import ru.practicum.shoppinglist.data.local.dao.ShoppingListDao
 import ru.practicum.shoppinglist.data.local.database.AppDatabase
+import javax.inject.Singleton
 
 @Module
 @InstallIn(SingletonComponent::class)
