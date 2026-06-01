@@ -1,3 +1,56 @@
 <resources>
     <string name="app_name">Shopping List</string>
+
+    <string name="welcome_shopping_list">Добро пожаловать в Список покупок!</string>
+    <string name="welcome_description">Создавайте списки, добавляйте товары, отмечайте, что уже куплено</string>
+
+    <string name="shopping_no_lists">У вас пока нет списков</string>
+    <string name="shopping_no_lists_description">Нажмите на кнопку + ниже, чтобы создать свой первый список</string>
+
+    <string name="search_no_result">Мы не смогли найти то, что вы искали</string>
+    <string name="search_no_result_description">Попробуйте изменить запрос или проверить написание</string>
+
+    <string name="main_lists">Мои списки</string>
+    <string name="name_list">Название списка</string>
+    <string name="new_list">Новый список</string>
+    <string name="add_list">Добавление списка</string>
+    <string name="rename_list">Переименование списка</string>
+    <string name="search_lists">Поиск списков</string>
+    <string name="clear_purchased">Очистить купленные</string>
+    <string name="delete_list">Удалить список "%s"?</string>
+    <string name="delete_all">Удалить все</string>
+    <string name="delete_all_purchased">Удалить все купленные товары?</string>
+    <string name="delete_all_lists">Удалить все списки?</string>
+
+    <string name="sort">Сортировка</string>
+    <string name="sort_alpha">По алфавиту</string>
+    <string name="sort_custom">Пользовательская</string>
+
+    <string name="create">Создать</string>
+    <string name="rename">Переименовать</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
+
+    <string name="product">Товар</string>
+    <string name="quantity">Количество</string>
+    <string name="units">Единицы</string>
+
+    <string name="liter">л</string>
+    <string name="milliliter">мл</string>
+    <string name="packaging">уп</string>
+    <string name="pack">пач</string>
+    <string name="piece">шт</string>
+    <string name="kilogram">кг</string>
+    <string name="gram">г</string>
+
+    <string-array name="units_lists">
+        <item>л</item>
+        <item>мл</item>
+        <item>уп</item>
+        <item>пач</item>
+        <item>шт</item>
+        <item>кг</item>
+        <item>г</item>
+    </string-array>
+
 </resources>
