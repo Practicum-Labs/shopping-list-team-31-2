@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -26,6 +27,7 @@ import ru.practicum.shoppinglist.R
 
 @Composable
 fun MainScreen(
+    onList: () -> Unit = {}
 ) {
 
     var showDialog by remember { mutableStateOf(false) }
@@ -55,6 +57,13 @@ fun MainScreen(
             painter = painterResource(R.drawable.ic_shopping_lists),
             contentDescription = null
         )
+
+        Button(
+            onClick = { onList() },
+            modifier = Modifier.padding(end = 16.dp)
+        ) {
+            Text("Тестовый список")
+        }
 
         Row(
             modifier = Modifier

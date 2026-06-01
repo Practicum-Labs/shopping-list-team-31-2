@@ -6,4 +6,7 @@
     <string name="new_list">Новый список</string>
     <string name="create_list">Создать</string>
     <string name="cancel_list">Отмена</string>
+    <string name="loginScreen">Экран Входа</string>
+    <string name="register">Зарегистрироватся</string>
+    <string name="lodin">Войти</string>
 </resources>
