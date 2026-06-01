@@ -45,4 +45,3 @@ val MediumLightText = Color(0xFF50453A)
 val SchemesOnSurface = Color(0xFF1D1B20)
 val NoActiveElement = Color(0xFFFEDDBD)
 val SurfaceContainerHigh = Color(0xFFF4E6DA)
-
