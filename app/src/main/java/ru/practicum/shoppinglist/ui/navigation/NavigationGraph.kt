@@ -17,9 +17,9 @@ fun NavigationGraph(
         navController = navController,
         startDestination = Routes.ONBOARD,
         modifier = modifier
-    ){
-        composable(Routes.ONBOARD){
-            OnboardScreen( navController = navController)
+    ) {
+        composable(Routes.ONBOARD) {
+            OnboardScreen(navController = navController)
         }
 
         composable(Routes.MAIN) {

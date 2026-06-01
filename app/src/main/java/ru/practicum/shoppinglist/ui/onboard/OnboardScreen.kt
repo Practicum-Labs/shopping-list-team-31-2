@@ -1,3 +1,5 @@
+@file:Suppress("MagicNumber")
+
 package ru.practicum.shoppinglist.ui.onboard
 
 import androidx.compose.foundation.Image
@@ -37,16 +39,14 @@ fun OnboardScreen(
             .padding(top = 16.dp),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
-
     ) {
 
         Text(
             text = stringResource(R.string.shopping_list),
             modifier = Modifier
                 .padding(bottom = 94.dp)
-                .padding(horizontal = 44.dp),
-
-            )
+                .padding(horizontal = 44.dp)
+        )
 
         Image(
             modifier = Modifier

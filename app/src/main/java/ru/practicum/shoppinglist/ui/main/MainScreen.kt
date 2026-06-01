@@ -77,22 +77,28 @@ fun MainScreen(
         AlertDialog(
             onDismissRequest = { showDialog = false },
             icon = {},
-            title = { Text(
-                text = stringResource(R.string.add_list))
-             },
-            text = {  Text(
-                text = stringResource(R.string.new_list))
+            title = {
+                Text(
+                    text = stringResource(R.string.add_list)
+                )
+            },
+            text = {
+                Text(
+                    text = stringResource(R.string.new_list)
+                )
             },
             confirmButton = {
                 TextButton(onClick = { showDialog = false }) {
                     Text(
-                        text = stringResource(R.string.create_list))
+                        text = stringResource(R.string.create_list)
+                    )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
                     Text(
-                        text = stringResource(R.string.cancel_list))
+                        text = stringResource(R.string.cancel_list)
+                    )
                 }
             }
         )
