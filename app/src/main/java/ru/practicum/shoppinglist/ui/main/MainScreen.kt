@@ -29,7 +29,6 @@ import ru.practicum.shoppinglist.R
 fun MainScreen(
     onList: () -> Unit = {}
 ) {
-
     var showDialog by remember { mutableStateOf(false) }
 
     Column(
@@ -40,15 +39,12 @@ fun MainScreen(
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-
         Text(
             text = stringResource(R.string.my_lists),
             modifier = Modifier
                 .padding(bottom = 120.dp)
                 .padding(horizontal = 44.dp),
-
-            )
-
+        )
         Image(
             modifier = Modifier
                 .fillMaxWidth()
@@ -72,7 +68,6 @@ fun MainScreen(
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.Bottom
         ) {
-
             IconButton(onClick = { showDialog = true }) {
                 Image(
                     painter = painterResource(R.drawable.ic_add_list_78),

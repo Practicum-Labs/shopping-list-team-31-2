@@ -19,15 +19,13 @@ import ru.practicum.shoppinglist.R
 @Preview
 @Composable
 fun SignUpScreen(
-    onLogin: () -> Unit = {},
-
-    ) {
+    onLogin: () -> Unit = {}
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(
             text = stringResource(R.string.register),
             color = Color.Black,
@@ -48,5 +46,4 @@ fun SignUpScreen(
             }
         }
     }
-
 }

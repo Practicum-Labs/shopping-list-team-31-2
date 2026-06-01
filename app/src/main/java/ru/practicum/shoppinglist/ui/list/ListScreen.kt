@@ -19,7 +19,6 @@ import ru.practicum.shoppinglist.R
 
 @Composable
 fun ListScreen() {
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -28,14 +27,12 @@ fun ListScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
 
     ) {
-
         Text(
             "Тестовый список",
             modifier = Modifier
                 .padding(bottom = 120.dp)
                 .padding(horizontal = 44.dp)
-            )
-
+        )
         Image(
             modifier = Modifier
                 .fillMaxWidth()
@@ -52,7 +49,6 @@ fun ListScreen() {
             horizontalArrangement = Arrangement.End,
             verticalAlignment = Alignment.Bottom
         ) {
-
             IconButton(onClick = { }) {
                 Image(
                     painter = painterResource(R.drawable.ic_add_list_78),
