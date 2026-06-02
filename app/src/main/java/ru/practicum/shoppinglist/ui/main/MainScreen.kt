@@ -40,7 +40,7 @@ fun MainScreen(
 
     ) {
         Text(
-            text = stringResource(R.string.my_lists),
+            text = stringResource(R.string.main_lists),
             modifier = Modifier
                 .padding(bottom = 120.dp)
                 .padding(horizontal = 44.dp),
@@ -94,14 +94,14 @@ fun MainScreen(
             confirmButton = {
                 TextButton(onClick = { showDialog = false }) {
                     Text(
-                        text = stringResource(R.string.create_list)
+                        text = stringResource(R.string.create)
                     )
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showDialog = false }) {
                     Text(
-                        text = stringResource(R.string.cancel_list)
+                        text = stringResource(R.string.cancel)
                     )
                 }
             }
