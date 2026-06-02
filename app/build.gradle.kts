@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("io.gitlab.arturbosch.detekt")
+    id("com.google.dagger.hilt.android")
 }
 
 android {
@@ -53,10 +54,10 @@ detekt {
     config = files("$rootDir/detekt-config.yml") // путь к вашему конфигу
     baseline = file("$rootDir/detekt-baseline.xml") // файл baseline (опционально)
     reports {
-        html.enabled = true
-        html.destination = file("build/reports/detekt.html")
-        xml.enabled = true
-        xml.destination = file("build/reports/detekt.xml")
+        html.required.set(true)
+        html.outputLocation.set(file("build/reports/detekt.html"))
+        xml.required.set(true)
+        xml.outputLocation.set(file("build/reports/detekt.xml"))
     }
     // Исключить из анализа ресурсы и build
     tasks.withType<io.gitlab.arturbosch.detekt.Detekt>().configureEach {
@@ -107,7 +108,20 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.converter.gson)
 
-    // Hilt - официальная DI-библиотека от Google, использующая Dagger под капотом
+    // Hilt
     implementation(libs.androidx.hilt.navigation.compose)
-    ksp(libs.androidx.hilt.compiler) // Плагин для обработки аннотаций Hilt/Dagger
+    ksp(libs.androidx.hilt.compiler)
+
+    // Dagger Hilt
+    implementation(libs.hilt.android)
+    ksp(libs.hilt.compiler)
+
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson.v2110)
+
+    // OkHttp (для логирования)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
+
 }
