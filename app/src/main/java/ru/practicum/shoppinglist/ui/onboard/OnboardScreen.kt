@@ -26,11 +26,10 @@ import ru.practicum.shoppinglist.ui.navigation.Routes
 fun OnboardScreen(
     navController: NavHostController
 ) {
-
     LaunchedEffect(Unit) {
         delay(3000); navController.navigate(Routes.LOGIN) {
-        popUpTo(Routes.ONBOARD) { inclusive = true }
-    }
+            popUpTo(Routes.ONBOARD) { inclusive = true }
+        }
     }
 
     Column(
@@ -40,7 +39,6 @@ fun OnboardScreen(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(
             text = stringResource(R.string.shopping_list),
             modifier = Modifier

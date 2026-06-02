@@ -116,6 +116,12 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
+    // Retrofit
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson.v2110)
 
+    // OkHttp (для логирования)
+    implementation(libs.okhttp)
+    implementation(libs.logging.interceptor)
 
 }

@@ -22,13 +22,12 @@ fun LoginScreen(
     onSignUp: () -> Unit = {},
     onMain: () -> Unit = {},
 
-    ) {
+) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-
         Text(
             text = stringResource(R.string.loginScreen),
             color = Color.Black,
