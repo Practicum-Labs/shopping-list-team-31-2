@@ -14,7 +14,9 @@ private val DarkColorScheme = darkColorScheme(
     secondary = RegularElementDark,
     surface = SurfaceContainerHigh,
     onSurface = SchemesOnSurface,
-    tertiary = NoActiveElement
+    tertiary = NoActiveElement,
+    tertiaryFixed = MediumDarkText
+
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -25,7 +27,8 @@ private val LightColorScheme = lightColorScheme(
     secondary = RegularElementLight,
     surface = SurfaceContainerHigh,
     onSurface = SchemesOnSurface,
-    tertiary = NoActiveElement
+    tertiary = NoActiveElement,
+    tertiaryFixed = MediumLightText
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

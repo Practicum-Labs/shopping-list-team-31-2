@@ -41,6 +41,7 @@ val LightText = Color(0xFFEEE0D5)
 
 val SmallDarkText = Color(0xFFE5C5A7)
 val MediumLightText = Color(0xFF50453A)
+val MediumDarkText = Color(0xFFD9C8B9)
 
 val SchemesOnSurface = Color(0xFF1D1B20)
 val NoActiveElement = Color(0xFFFEDDBD)
