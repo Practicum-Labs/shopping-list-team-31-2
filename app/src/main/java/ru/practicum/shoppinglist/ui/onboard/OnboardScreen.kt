@@ -8,13 +8,18 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -36,6 +41,7 @@ import androidx.navigation.compose.rememberNavController
 import kotlinx.coroutines.delay
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.navigation.Routes
+import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Composable
 fun OnboardScreen(
@@ -57,22 +63,31 @@ fun OnboardScreen(
         }
     }
 
-    Column(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(top = 16.dp)
-            .background(MaterialTheme.colorScheme.onPrimary)
-            .clickable { navigateToScreen = true }
-    ) {
-        TitleScreen()
+    ShoppingListTheme() {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.primary)
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(WindowInsets.statusBars)
+                    .clickable { navigateToScreen = true }
+            ) {
+                Spacer(modifier = Modifier.padding(top = 16.dp))
 
-        IllustrationScreen(
-            image = R.drawable.ic_main_screen,
-            title = R.string.welcome_shopping_list,
-            description = R.string.welcome_description
-        )
+                TitleScreen()
 
+                IllustrationScreen(
+                    image = R.drawable.ic_main_screen,
+                    title = R.string.welcome_shopping_list,
+                    description = R.string.welcome_description
+                )
+            }
+        }
     }
+
 }
 
 private fun navigateToList(navController: NavHostController) {
@@ -85,21 +100,22 @@ private fun navigateToList(navController: NavHostController) {
 private fun TitleScreen() {
     Row(
         modifier = Modifier
+            .windowInsetsPadding(WindowInsets.statusBars)
             .height(74.dp)
             .padding(horizontal = 36.dp)
     ) {
         Icon(
-            modifier = Modifier
-                .offset(y = (-20).dp),
             painter = painterResource(id = R.drawable.ic_logo),
             contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.onBackground
         )
 
         Icon(
+            modifier = Modifier
+                .padding(top = 20.dp),
             painter = painterResource(id = R.drawable.ic_main_title),
             contentDescription = "",
-            tint = MaterialTheme.colorScheme.primary
+            tint = MaterialTheme.colorScheme.onBackground
         )
     }
 }
