@@ -11,7 +11,7 @@ import ru.practicum.shoppinglist.data.local.entities.ShoppingListEntity
 interface ShoppingListDao {
 
     @Query("SELECT * FROM shopping_lists ORDER BY updated_at DESC")
-    fun getAllLists(): Flow<List<ShoppingListEntity>>
+    fun getAllLists(): List<ShoppingListEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertList(list: ShoppingListEntity): Long
