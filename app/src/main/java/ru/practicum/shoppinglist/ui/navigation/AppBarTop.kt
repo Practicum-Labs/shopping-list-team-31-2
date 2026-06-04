@@ -1,5 +1,6 @@
 package ru.practicum.shoppinglist.ui.navigation
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -134,6 +135,7 @@ private fun AppButtonAction(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.End,
+        modifier = Modifier.background(MaterialTheme.colorScheme.primary)
     ) {
         SearchIcon(search)
 
