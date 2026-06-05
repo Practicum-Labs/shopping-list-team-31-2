@@ -25,6 +25,10 @@ object Colors {
 val ColorLightPrimary = Color(0xFFFFF8F4)
 val ColorDarkPrimary = Color(0xFF19120C)
 
+val ColorLightCoContainer = Color(0xFFFFF1E7)
+
+val ColorDarkCoContainer = Color(0xFF3B332C)
+
 // Container
 val ColorBackgroundContainerLight = Color(0xFFF4E6DA)
 val ColorBackgroundContainerDark = Color(0x21FF3029)
@@ -41,6 +45,7 @@ val LightText = Color(0xFFEEE0D5)
 
 val SmallDarkText = Color(0xFFE5C5A7)
 val MediumLightText = Color(0xFF50453A)
+val MediumDarkText = Color(0xFFD9C8B9)
 
 val SchemesOnSurface = Color(0xFF1D1B20)
 val NoActiveElement = Color(0xFFFEDDBD)
