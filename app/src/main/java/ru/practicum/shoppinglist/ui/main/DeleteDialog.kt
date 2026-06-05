@@ -6,15 +6,20 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Composable
-fun DeleteAllDialog(
+fun DeleteDialog(
+    title: String,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit
 ) {
@@ -30,7 +35,7 @@ fun DeleteAllDialog(
             },
             title = {
                 Text(
-                    text = stringResource(R.string.delete_all_lists),
+                    text = title,
                     color = MaterialTheme.colorScheme.onBackground,
                     style = MaterialTheme.typography.headlineSmall
                 )
@@ -65,5 +70,22 @@ fun DeleteAllDialog(
             },
             containerColor = MaterialTheme.colorScheme.onPrimary
         )
+    }
+}
+
+// Preview для удаления одного списка
+@Preview(name = "Delete Dialog - Single List", showBackground = true)
+@Composable
+private fun PreviewDeleteSingleList() {
+    var showDialog by remember { mutableStateOf(true) }
+
+    if (showDialog) {
+        ShoppingListTheme {
+            DeleteDialog(
+                title = "Удалить список \"Продукты\"?",
+                onDismiss = { showDialog = false },
+                onConfirm = { showDialog = false }
+            )
+        }
     }
 }

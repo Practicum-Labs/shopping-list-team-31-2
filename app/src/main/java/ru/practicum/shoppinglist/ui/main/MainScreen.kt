@@ -136,14 +136,18 @@ fun MainScreen(
                         onIconClick = {
                             showBottomSheet = true
                             selectedCardIndex = 0
-                        }
+                        },
+                        onEdit = { },
+                        onCopy = { },
+                        onDelete = { }
                     )
 
                     // Для теста
 
                     IconButton(
                         onClick = onBack,
-                        modifier = Modifier.padding(all = 16.dp)
+                        modifier = Modifier
+                            .padding(all = 16.dp)
                             .size(40.dp),
                     ) {
                         Icon(
@@ -172,6 +176,7 @@ fun MainScreen(
 
                     )
                 }
+
             }
         }
 
@@ -184,7 +189,8 @@ fun MainScreen(
         }
 
         if (onDelete) {
-            DeleteAllDialog(
+            DeleteDialog(
+                title = stringResource(R.string.delete_all_lists),
                 onConfirm = { onDelete = false },
                 onDismiss = { onDelete = false }
             )

@@ -40,6 +40,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
@@ -52,9 +53,9 @@ fun CardList(
     iconCard: Int,
     textCard: Int,
     onIconClick: () -> Unit,
-    onEdit: () -> Unit = {},
-    onCopy: () -> Unit = {},
-    onDelete: () -> Unit = {}
+    onEdit: () -> Unit,
+    onCopy: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val offsetX = remember { Animatable(0f) }
@@ -272,5 +273,20 @@ fun CardList(
                 }
             }
         }
+    }
+}
+
+@Preview(name = "CardList - Recipes", showBackground = true)
+@Composable
+private fun PreviewCardListRecipes() {
+    ShoppingListTheme {
+        CardList(
+            iconCard = R.drawable.ic_set_cake,
+            textCard = R.string.main_lists,
+            onIconClick = {},
+            onEdit = {},
+            onCopy = {},
+            onDelete = {}
+        )
     }
 }
