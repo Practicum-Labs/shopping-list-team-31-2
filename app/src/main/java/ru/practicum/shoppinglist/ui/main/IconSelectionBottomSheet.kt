@@ -28,7 +28,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -67,16 +69,15 @@ fun IconSelectionBottomSheet(
                     .fillMaxWidth()
                     .background(MaterialTheme.colorScheme.tertiaryContainer)
                     .padding(horizontal = 40.dp)
-                    .padding(vertical = 24.dp)
             ) {
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(5),
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(400.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                    contentPadding = PaddingValues(vertical = 24.dp)
                 ) {
                     items(IconResources.availableIcons) { iconRes ->
                         IconSelectionItem(
@@ -116,6 +117,23 @@ fun IconSelectionItem(
                 contentDescription = null,
                 modifier = Modifier.size(24.dp),
                 tint = MaterialTheme.colorScheme.tertiaryFixed
+            )
+        }
+    }
+}
+
+// Preview для проверки
+@Preview(name = "Icon Selection Item - Circle", showBackground = true)
+@Composable
+private fun PreviewIconSelectionItem() {
+    ShoppingListTheme {
+        Box(
+            modifier = Modifier.padding(16.dp),
+            contentAlignment = Alignment.Center
+        ) {
+            IconSelectionItem(
+                iconRes = R.drawable.ic_set_basket,
+                onSelect = {}
             )
         }
     }

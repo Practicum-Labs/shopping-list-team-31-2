@@ -149,7 +149,6 @@ fun CardList(
 
                     Spacer(modifier = Modifier.width(8.dp))
 
-                    // Иконка Delete
                     Box(
                         modifier = Modifier
                             .size(40.dp)
@@ -194,7 +193,8 @@ fun CardList(
                                 },
                                 onDragEnd = {
                                     scope.launch {
-                                        val maxOffset = -with(density) { ACTION_BUTTONS_WIDTH.toPx() }
+                                        val maxOffset =
+                                            -with(density) { ACTION_BUTTONS_WIDTH.toPx() }
                                         if (offsetX.value < -100f) {
                                             offsetX.animateTo(maxOffset, animationSpec = tween(300))
                                             isActionsVisible = true
@@ -212,7 +212,8 @@ fun CardList(
                                 },
                                 onHorizontalDrag = { _, dragAmount ->
                                     scope.launch {
-                                        val maxOffset = -with(density) { ACTION_BUTTONS_WIDTH.toPx() }
+                                        val maxOffset =
+                                            -with(density) { ACTION_BUTTONS_WIDTH.toPx() }
                                         val newOffset = offsetX.value + dragAmount
                                         val clampedOffset = newOffset.coerceIn(maxOffset, 0f)
                                         offsetX.snapTo(clampedOffset)
