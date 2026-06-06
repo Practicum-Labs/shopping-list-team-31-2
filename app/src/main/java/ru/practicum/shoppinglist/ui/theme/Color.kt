@@ -34,14 +34,23 @@ val DarkContainer = Color(0xFFBE8543)
 
 val RegularElementLight = Color(0xFF845416)
 val RegularElementDark = Color(0xFFE0C1A3)
+val CheckBoxNoActiveDark = Color(0xFFD9C8B9)
 
 // Text
 val DarkText = Color(0xFF211A14)
 val LightText = Color(0xFFEEE0D5)
 
 val SmallDarkText = Color(0xFFE5C5A7)
-val MediumLightText = Color(0xFF50453A)
 
 val SchemesOnSurface = Color(0xFF1D1B20)
 val NoActiveElement = Color(0xFFFEDDBD)
 val SurfaceContainerHigh = Color(0xFFF4E6DA)
+
+val BottomSheetColor = Color(0xFFFFF1E7)
+val BottomSheetColorDark = Color(0xFF251E17)
+
+val MenuTextColorDark = Color(0xFFFFFAF8)
+val MenuTextColoLight = Color(0xFF1D1B20)
+
+val MenuLightIcon = Color(0xFF50453A)
+val MenuDarkIcon = Color(0xFFD9C8B9)

@@ -2,7 +2,7 @@
     <string name="app_name">Shopping List</string>
     <string name="shopping_list">Cписок покупок</string>
     <string name="loginScreen">Экран Входа</string>
-    <string name="register">Зарегистрироватся</string>
+    <string name="register">Зарегистрироваться</string>
     <string name="lodin">Войти</string>
 
     <string name="welcome_shopping_list">Добро пожаловать в Список покупок!</string>
@@ -10,6 +10,9 @@
 
     <string name="shopping_no_lists">У вас пока нет списков</string>
     <string name="shopping_no_lists_description">Нажмите на кнопку + ниже, чтобы создать свой первый список</string>
+
+    <string name="lists_are_empty">В списке покупок пока пусто</string>
+    <string name="lists_are_empty_description">Нажмите на кнопку + ниже,\n чтобы добавить товары</string>
 
     <string name="search_no_result">Мы не смогли найти то, что вы искали</string>
     <string name="search_no_result_description">Попробуйте изменить запрос или проверить написание</string>
@@ -38,6 +41,8 @@
     <string name="product">Товар</string>
     <string name="quantity">Количество</string>
     <string name="units">Единицы</string>
+    <string name="products">Продукты</string>
+    <string name="add_new_product">Добавить новый товар</string>
 
     <string name="liter">л</string>
     <string name="milliliter">мл</string>
