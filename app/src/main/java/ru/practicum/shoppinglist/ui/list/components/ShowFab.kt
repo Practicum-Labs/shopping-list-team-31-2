@@ -7,10 +7,10 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import ru.practicum.shoppinglist.R
+import ru.practicum.shoppinglist.ui.theme.NoActiveElement
 
 @Composable
 fun ShowFab(
@@ -24,7 +24,7 @@ fun ShowFab(
         FloatingActionButton(
             onClick = onClick,
             modifier = modifier,
-            containerColor = Color(0xFFFFDCBB)
+            containerColor = NoActiveElement
         ) {
             Icon(
                 painter = painterResource(image),
