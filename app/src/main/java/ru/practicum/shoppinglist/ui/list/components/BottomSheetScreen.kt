@@ -106,7 +106,9 @@ fun BottomSheetScreen() {
                     },
                     label = {
                         Text(
-                            text = stringResource(R.string.quantity)
+                            text = stringResource(R.string.quantity),
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     },
                     singleLine = true,
@@ -127,7 +129,9 @@ fun BottomSheetScreen() {
                         onValueChange = {},
                         label = {
                             Text(
-                                text = stringResource(R.string.units)
+                                text = stringResource(R.string.units),
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis
                             )
                         },
                         placeholder = {
