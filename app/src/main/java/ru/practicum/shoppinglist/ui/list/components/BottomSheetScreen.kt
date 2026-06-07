@@ -53,8 +53,6 @@ fun BottomSheetScreen() {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(160.dp)
-//                .navigationBarsPadding()
                 .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {

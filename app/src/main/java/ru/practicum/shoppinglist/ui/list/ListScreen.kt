@@ -29,12 +29,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.LayoutCoordinates
+import androidx.compose.ui.layout.onGloballyPositioned
+import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.launch
 import ru.practicum.shoppinglist.R
+import ru.practicum.shoppinglist.ui.list.components.BottomSheetMenu
 import ru.practicum.shoppinglist.ui.list.components.BottomSheetScreen
 import ru.practicum.shoppinglist.ui.list.components.IllustrationScreen
 import ru.practicum.shoppinglist.ui.list.components.ProductsListScreen
@@ -66,19 +70,28 @@ data class TestProduct(
 @Composable
 fun ListScreen(
     onBack: () -> Unit = {},
-    onMenu: () -> Unit = {}
 ) {
-    val scope = rememberCoroutineScope()
     var showDialogAdd by remember { mutableStateOf(false) }
     val lists = getLists()
 
+    val scope = rememberCoroutineScope()
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-  //  var fabOffsetY by remember { mutableStateOf(0) }
+    var fabOffsetY by remember { mutableStateOf(0f) }
+
+    val scopeMenu = rememberCoroutineScope()
+    var showMenu by remember { mutableStateOf(false) }
+    val sheetStateMenu = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
     LaunchedEffect(sheetState.isVisible) {
         if (!sheetState.isVisible) {
             showBottomSheet = false
+        }
+    }
+
+    LaunchedEffect(sheetStateMenu.isVisible) {
+        if (!sheetStateMenu.isVisible) {
+            showMenu = false
         }
     }
 
@@ -88,8 +101,8 @@ fun ListScreen(
                 topBar = {
                     AppBarTop(
                         title = stringResource(id = R.string.products),
-                        back = ActionBack(isView = true, onClick = onBack),
-                        menu = ActionMenu(isView = true, onClick = onMenu)
+                        back = ActionBack(isView = true, onClick =  onBack ),
+                        menu = ActionMenu(isView = true, onClick = { showMenu = true })
                     )
                 },
                 content = { paddingValues ->
@@ -114,6 +127,20 @@ fun ListScreen(
                 }
             )
 
+            if (showBottomSheet) {
+                ModalBottomSheet(
+                    onDismissRequest = { scope.launch { sheetState.hide() } },
+                    sheetState = sheetState,
+                    modifier = Modifier
+                        .onGloballyPositioned{coordinates: LayoutCoordinates ->
+                            fabOffsetY = coordinates.positionInWindow().y
+                        }
+                ) {
+                    BottomSheetScreen(
+                    )
+                }
+            }
+
             ShowFab(
                 onClick = { showBottomSheet = true },
                 image = if (showDialogAdd) {
@@ -124,19 +151,20 @@ fun ListScreen(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 56.dp)
-            //        .offset { IntOffset(x = 0, y = fabOffsetY) }
+                //        .offset { IntOffset(x = 0, y = fabOffsetY) }
             )
 
-            if (showBottomSheet) {
+            if (showMenu) {
+                showBottomSheet = false
+
                 ModalBottomSheet(
-                    onDismissRequest = { scope.launch { sheetState.hide() } },
-                    sheetState = sheetState,
+                    onDismissRequest = { scopeMenu.launch { sheetStateMenu.hide() } },
+                    sheetState = sheetStateMenu,
                 ) {
-                    BottomSheetScreen(
+                    BottomSheetMenu(
                     )
                 }
             }
-
         }
     }
 }

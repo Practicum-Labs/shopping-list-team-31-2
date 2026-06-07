@@ -46,7 +46,9 @@ fun NavigationGraph(
         }
 
         composable(Routes.LIST) {
-            ListScreen()
+            ListScreen(
+                onBack = { navController.popBackStack() }
+            )
         }
     }
 }
