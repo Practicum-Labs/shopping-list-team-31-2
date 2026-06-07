@@ -40,7 +40,8 @@ fun NavigationGraph(
 
         composable(Routes.MAIN) {
             MainScreen(
-                onList = { navController.navigate(Routes.LIST) }
+                onList = { navController.navigate(Routes.LIST) },
+                onBack = { navController.navigate(Routes.MAIN) }
             )
         }
 

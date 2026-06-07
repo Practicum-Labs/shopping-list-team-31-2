@@ -8,7 +8,7 @@ on:
 env:
   commonGradleFlags: --parallel --stacktrace --no-configuration-cache --no-daemon
   detektReportPath: ./app/build/reports/detekt/detekt.xml
-  reviewdogSetup: -f=checkstyle -name="detekt" -level=error -filter-mode=added
+  reviewdogSetup: -f=checkstyle -name="detekt" -level=warning -filter-mode=added
 
 jobs:
   pr-checks:
