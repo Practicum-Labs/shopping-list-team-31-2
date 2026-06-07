@@ -3,6 +3,7 @@ package ru.practicum.shoppinglist.ui.list.components
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,17 +24,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.list.TestProduct
+import ru.practicum.shoppinglist.ui.theme.DriverColorLight
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Composable
 fun ProductsListScreen(
-    products: List<TestProduct>
+    products: List<TestProduct>,
+    paddingValues: PaddingValues
 ) {
     ShoppingListTheme {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.primary),
+                contentPadding = paddingValues,
         ) {
             items(
                 items = products,
@@ -45,7 +49,7 @@ fun ProductsListScreen(
                 )
                 HorizontalDivider(
                     thickness = 1.dp,
-                    color = MaterialTheme.colorScheme.surfaceTint
+                    color = DriverColorLight
                 )
             }
         }
@@ -110,7 +114,7 @@ fun ProductItem(
 @Composable
 private fun ProductsListScreenPreview() {
     val lists = getLists()
-    ProductsListScreen(lists)
+    ProductsListScreen(lists, paddingValues = PaddingValues())
 }
 
 fun getLists(): List<TestProduct> {

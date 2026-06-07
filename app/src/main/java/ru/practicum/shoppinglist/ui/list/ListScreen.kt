@@ -6,19 +6,17 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.statusBars
-import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -74,50 +72,50 @@ fun ListScreen(
     var showDialogAdd by remember { mutableStateOf(false) }
     val lists = getLists()
 
-    var isBottomSheetVisible by remember { mutableStateOf(false) }
+    var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+  //  var fabOffsetY by remember { mutableStateOf(0) }
 
     LaunchedEffect(sheetState.isVisible) {
         if (!sheetState.isVisible) {
-            isBottomSheetVisible = false
+            showBottomSheet = false
         }
     }
 
     ShoppingListTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(MaterialTheme.colorScheme.primary)
-                .windowInsetsPadding(WindowInsets.statusBars)
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .windowInsetsPadding(WindowInsets.statusBars)
-                    .padding(top = 16.dp),
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-
-            ) {
-                AppBarTop(
-                    title = stringResource(id = R.string.products),
-                    back = ActionBack(isView = true, onClick = onBack),
-                    menu = ActionMenu(isView = true, onClick = onMenu)
-                )
-
-                if (lists.isEmpty()) {
-                    IllustrationScreen(
-                        image = R.drawable.ic_product_list,
-                        title = R.string.lists_are_empty,
-                        description = R.string.lists_are_empty_description
+        Box(modifier = Modifier.fillMaxSize()) {
+            Scaffold(
+                topBar = {
+                    AppBarTop(
+                        title = stringResource(id = R.string.products),
+                        back = ActionBack(isView = true, onClick = onBack),
+                        menu = ActionMenu(isView = true, onClick = onMenu)
                     )
-                } else {
-                    ProductsListScreen(lists)
+                },
+                content = { paddingValues ->
+                    Column(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(top = 16.dp),
+                        verticalArrangement = Arrangement.Center,
+                        horizontalAlignment = Alignment.CenterHorizontally
+
+                    ) {
+                        if (lists.isEmpty()) {
+                            IllustrationScreen(
+                                image = R.drawable.ic_product_list,
+                                title = R.string.lists_are_empty,
+                                description = R.string.lists_are_empty_description,
+                            )
+                        } else {
+                            ProductsListScreen(lists, paddingValues)
+                        }
+                    }
                 }
-            }
+            )
 
             ShowFab(
-                onClick = { isBottomSheetVisible = true },
+                onClick = { showBottomSheet = true },
                 image = if (showDialogAdd) {
                     R.drawable.ic_check
                 } else {
@@ -126,24 +124,19 @@ fun ListScreen(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 56.dp)
+            //        .offset { IntOffset(x = 0, y = fabOffsetY) }
             )
 
-            if (isBottomSheetVisible) {
+            if (showBottomSheet) {
                 ModalBottomSheet(
                     onDismissRequest = { scope.launch { sheetState.hide() } },
                     sheetState = sheetState,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .clickable(enabled = true) {
-                            isBottomSheetVisible = false
-                        },
-
-                    scrimColor = Color.Black.copy(alpha = 0.5f)
                 ) {
-                    BottomSheetScreen()
+                    BottomSheetScreen(
+                    )
                 }
-
             }
+
         }
     }
 }

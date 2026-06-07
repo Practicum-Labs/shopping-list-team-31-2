@@ -25,14 +25,14 @@ import ru.practicum.shoppinglist.R
 fun IllustrationScreen(
     @DrawableRes image: Int,
     @StringRes title: Int = 0,
-    @StringRes description: Int = 0,
+    @StringRes description: Int = 0
 ) {
     Column(
         modifier = Modifier
             .fillMaxSize()
             .padding(horizontal = 44.dp),
         verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
             modifier = Modifier
@@ -66,6 +66,6 @@ private fun IllustrationScreenPreview() {
     IllustrationScreen(
         image = R.drawable.ic_product_list,
         title = R.string.lists_are_empty,
-        description = R.string.lists_are_empty_description
+        description = R.string.lists_are_empty_description,
     )
 }

@@ -4,8 +4,9 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -38,7 +39,7 @@ fun BottomSheetScreen() {
     val units = stringArrayResource(R.array.units_lists) // .toList()
 
     var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("0") }
+    var quantity by remember { mutableStateOf("") }
     var expanded by remember { mutableStateOf(false) }
     var selectedUnit by remember { mutableStateOf("") }
 
@@ -46,16 +47,15 @@ fun BottomSheetScreen() {
     val enabledButtonMinus = valueIntQuantity > 0
 
     Surface(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().imePadding(),
         color = MaterialTheme.colorScheme.inverseSurface,
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-//                .heightIn(min = 196.dp)
+                .height(160.dp)
 //                .navigationBarsPadding()
-                .padding(horizontal = 16.dp)
-                .padding(bottom = 16.dp),
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             OutlinedTextField(
@@ -63,13 +63,13 @@ fun BottomSheetScreen() {
                 onValueChange = { name = it },
                 placeholder = {
                     Text(
-                        text = stringResource(R.string.add_new_product),
+                        text = stringResource(R.string.product),
                         color = MaterialTheme.colorScheme.onBackground
                     )
                 },
                 label = {
                     Text(
-                        text = stringResource(R.string.product)
+                        text = stringResource(R.string.add_new_product)
                     )
                 },
                 singleLine = true,
@@ -82,11 +82,10 @@ fun BottomSheetScreen() {
 
             Row(
                 modifier = Modifier
-                    .fillMaxWidth(),
-                // .imePadding()
-                // .padding(bottom = 16.dp),
+                    .fillMaxWidth()
+                    .height(64.dp),
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.Bottom,
+                verticalAlignment = Alignment.CenterVertically
 
             ) {
                 // Ввод количества
@@ -101,7 +100,8 @@ fun BottomSheetScreen() {
                     placeholder = {
                         Text(
                             text = stringResource(R.string.quantity),
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.colorScheme.onBackground,
+                            maxLines = 1
                         )
                     },
                     label = {
@@ -109,9 +109,9 @@ fun BottomSheetScreen() {
                             text = stringResource(R.string.quantity)
                         )
                     },
+                    singleLine = true,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                     modifier = Modifier
-                        .widthIn(120.dp)
                         .weight(1f),
                 )
                 // Список с элементами
@@ -119,7 +119,6 @@ fun BottomSheetScreen() {
                     expanded = expanded,
                     onExpandedChange = { expanded = !expanded },
                     modifier = Modifier
-                        .widthIn(120.dp)
                         .weight(1f)
                 ) {
                     OutlinedTextField(
@@ -138,9 +137,11 @@ fun BottomSheetScreen() {
                                 overflow = TextOverflow.Ellipsis,
                             )
                         },
+                        singleLine = true,
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
                         colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
-                        modifier = Modifier.menuAnchor(
+                        modifier = Modifier
+                            .menuAnchor(
                             type = ExposedDropdownMenuAnchorType.PrimaryNotEditable
                         )
                     )
@@ -169,7 +170,7 @@ fun BottomSheetScreen() {
                 )
 
                 RoundButtonScreen(
-                    onClick = { quantity = modifyIntToString(quantity, false) },
+                    onClick = { quantity = modifyIntToString(quantity, true) },
                     idIcon = R.drawable.ic_add,
                     enabled = true
                 )
@@ -180,11 +181,11 @@ fun BottomSheetScreen() {
 }
 
 fun modifyIntToString(numberAsString: String, increment: Boolean = true): String {
-    val number = numberAsString.toIntOrNull() ?: return "0"
+    val number = numberAsString.toIntOrNull() ?: 0
 
     val newValue = number + if (increment) 1 else -1
 
-    return newValue.toString()
+    return if (newValue > 0) newValue.toString() else ""
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

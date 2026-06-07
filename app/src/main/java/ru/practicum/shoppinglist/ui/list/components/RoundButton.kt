@@ -23,7 +23,7 @@ fun RoundButtonScreen(
 ) {
     val colorButtonEnabled = if (enabled) LightContainer else BackgroundFabDark
     IconButton(
-        modifier = Modifier.size(48.dp),
+        modifier = Modifier.size(40.dp),
         onClick = onClick,
         enabled = enabled,
         colors = IconButtonDefaults.iconButtonColors(
