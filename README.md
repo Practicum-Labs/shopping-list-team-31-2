@@ -4,7 +4,7 @@
 
     Горлов Сергей — Тимлид
     Новожилов Иван
-    Сизоненко Анастасия
+    Яковлева Анастасия
 
 # 📅 Режим доступности
 
@@ -19,8 +19,8 @@
 |---|---|
 |🎨 UI|Jetpack Compose|
 |🗄️ DB|Room|
-|🔌 DI|Dagger 2|
-|🌐 Network|Retrofit / Ktor|
+|🔌 DI|Dagger 2 - Hilt|
+|🌐 Network|Retrofit|
 
 ⚙️ Выбранная архитектура: MVI
 
