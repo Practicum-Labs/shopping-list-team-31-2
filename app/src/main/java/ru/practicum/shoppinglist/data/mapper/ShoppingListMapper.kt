@@ -4,7 +4,7 @@ import ru.practicum.shoppinglist.data.local.entities.ShoppingListEntity
 import ru.practicum.shoppinglist.domain.model.ShoppingList
 
 object ShoppingListMapper {
-    fun convertShoppingListToEntity(shoppingList: ShoppingList) : ShoppingListEntity {
+    fun convertShoppingListToEntity(shoppingList: ShoppingList): ShoppingListEntity {
         return ShoppingListEntity(
             id = shoppingList.id,
             name = shoppingList.name,
@@ -13,7 +13,7 @@ object ShoppingListMapper {
         )
     }
 
-    fun convertEntityToShoppingList(shoppingListEntity: ShoppingListEntity) : ShoppingList {
+    fun convertEntityToShoppingList(shoppingListEntity: ShoppingListEntity): ShoppingList {
         return ShoppingList(
             id = shoppingListEntity.id,
             name = shoppingListEntity.name,
@@ -22,7 +22,7 @@ object ShoppingListMapper {
         )
     }
 
-    fun mapEntityListsToShoppingLists(shoppingListsEntity: List<ShoppingListEntity>) : List<ShoppingList> {
-        return shoppingListsEntity.map {shoppingList -> convertEntityToShoppingList(shoppingList)}
+    fun mapEntityListsToShoppingLists(shoppingListsEntity: List<ShoppingListEntity>): List<ShoppingList> {
+        return shoppingListsEntity.map { shoppingList -> convertEntityToShoppingList(shoppingList) }
     }
 }

@@ -8,7 +8,7 @@ import javax.inject.Inject
 
 class ShoppingListInteractorImpl @Inject constructor(
     val shoppingListRepository: ShoppingListRepository
-): ShoppingListInteractor {
+) : ShoppingListInteractor {
     override suspend fun createShoppingList(shoppingList: ShoppingList) {
         return shoppingListRepository.createShoppingList(shoppingList)
     }
