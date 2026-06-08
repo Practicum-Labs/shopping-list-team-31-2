@@ -27,8 +27,7 @@ fun AddListDialog(
     onListNameChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    isRenameMode: Boolean = false
-
+    isRenameMode: Boolean = false,
 ) {
     ShoppingListTheme {
         AlertDialog(

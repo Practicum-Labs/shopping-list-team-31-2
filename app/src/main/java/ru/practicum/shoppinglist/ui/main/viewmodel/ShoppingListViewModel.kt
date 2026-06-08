@@ -25,6 +25,9 @@ class ShoppingListViewModel @Inject constructor(
         is ShoppingListIntent.AddShoppingList -> handleAddItem(intent.shoppingList)
         is ShoppingListIntent.DeleteAll -> intent
         is ShoppingListIntent.GetAllShoppingList -> handleGetAllItems()
+        is ShoppingListIntent.SetAddedName -> _uiState.update { it.copy(addedName = it.addedName) }
+        is ShoppingListIntent.SetAddedId -> _uiState.update { it.copy(addedId = it.addedId) }
+        is ShoppingListIntent.SetAddedIcon -> _uiState.update { it.copy(addedName = it.addedName) }
     }
 
     private fun handleAddItem(shoppingList: ShoppingList) {
@@ -34,7 +37,7 @@ class ShoppingListViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     val mutableItems = currentState.shoppingLists.toMutableList()
                     mutableItems.add(shoppingList)
-                    currentState.copy(shoppingLists = mutableItems)
+                    currentState.copy(shoppingLists = mutableItems, addedId = mutableItems.last().id + 1)
                 }
             } catch (e: IOException) {
                 _uiState.update { it.copy(errorMessage = e.message) }

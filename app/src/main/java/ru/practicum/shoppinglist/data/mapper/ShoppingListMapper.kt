@@ -2,14 +2,14 @@ package ru.practicum.shoppinglist.data.mapper
 
 import ru.practicum.shoppinglist.data.local.entities.ShoppingListEntity
 import ru.practicum.shoppinglist.domain.model.ShoppingList
+import javax.inject.Inject
 
-object ShoppingListMapper {
+class ShoppingListMapper @Inject constructor() {
     fun convertShoppingListToEntity(shoppingList: ShoppingList): ShoppingListEntity {
         return ShoppingListEntity(
             id = shoppingList.id,
             name = shoppingList.name,
-            createdAt = shoppingList.createdAt,
-            updatedAt = shoppingList.updatedAt
+            icon = shoppingList.icon,
         )
     }
 
@@ -17,8 +17,7 @@ object ShoppingListMapper {
         return ShoppingList(
             id = shoppingListEntity.id,
             name = shoppingListEntity.name,
-            createdAt = shoppingListEntity.createdAt,
-            updatedAt = shoppingListEntity.updatedAt
+            icon = shoppingListEntity.icon,
         )
     }
 

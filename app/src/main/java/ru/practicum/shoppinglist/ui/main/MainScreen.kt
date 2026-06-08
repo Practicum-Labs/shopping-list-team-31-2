@@ -14,12 +14,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.material3.Button
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -32,7 +33,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.practicum.shoppinglist.R
+import ru.practicum.shoppinglist.domain.model.ShoppingList
+import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListIntent
+import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListViewModel
 import ru.practicum.shoppinglist.ui.navigation.ActionDelete
 import ru.practicum.shoppinglist.ui.navigation.ActionSearch
 import ru.practicum.shoppinglist.ui.navigation.ActionTheme
@@ -45,16 +50,17 @@ fun MainScreen(
     onList: () -> Unit = {},
     onBack: () -> Unit = {},
     onTheme: () -> Unit = {},
-
+    viewModel: ShoppingListViewModel = hiltViewModel()
 ) {
     var onSearch by remember { mutableStateOf(false) }
     var searchText by remember { mutableStateOf("") }
     var onDelete by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var listName by remember { mutableStateOf("") }
-    var lists by remember { mutableStateOf(false) }
     var showBottomSheet by remember { mutableStateOf(false) }
-    var selectedCardIndex by remember { mutableStateOf(-1) }
+    var selectedCardIndex by remember { mutableStateOf(-1L) }
+
+    val state by viewModel.uiState.collectAsState()
 
     ShoppingListTheme {
         Box(modifier = Modifier.fillMaxSize()) {
@@ -71,7 +77,7 @@ fun MainScreen(
                     theme = ActionTheme(isView = true, onClick = onTheme),
                 )
 
-                if (!lists) {
+                if (!state.shoppingLists.isNotEmpty()) {
                     Column(
                         modifier = Modifier
                             .wrapContentSize()
@@ -105,56 +111,53 @@ fun MainScreen(
                         )
 
                         // Для теста
-                        Button(
-                            onClick = { lists = true },
-
-                        ) {
-                            Text(
-                                "Test",
-                                color = Color.Red,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
+//                        Button(
+//                            onClick = { lists = true },
+//
+//                        ) {
+//                            Text(
+//                                "Test",
+//                                color = Color.Red,
+//                                style = MaterialTheme.typography.titleMedium
+//                            )
+//                        }
 
                     }
                 } else {
-                    CardList(
-                        iconCard = R.drawable.ic_list_alt,
-                        textCard = R.string.delete,
-                        onIconClick = {
-                            showBottomSheet = true
-                            selectedCardIndex = 0
-                        },
-                        onEdit = { },
-                        onCopy = { },
-                        onDelete = { }
-                    )
-
-                    CardList(
-                        iconCard = R.drawable.ic_list_alt,
-                        textCard = R.string.new_list,
-                        onIconClick = {
-                            showBottomSheet = true
-                            selectedCardIndex = 0
-                        },
-                        onEdit = { },
-                        onCopy = { },
-                        onDelete = { }
-                    )
+                    LazyColumn(
+                        modifier = Modifier
+                    ) {
+                        items(
+                            items = state.shoppingLists,
+                            key = { it.id }
+                        ) { item ->
+                            CardList(
+                                iconCard = R.drawable.ic_list_alt,
+                                textCard = item.name,
+                                onIconClick = {
+                                    showBottomSheet = true
+                                    selectedCardIndex = item.id
+                                },
+                                onEdit = { },
+                                onCopy = { },
+                                onDelete = { }
+                            )
+                        }
+                    }
 
                     // Для теста
 
-                    IconButton(
-                        onClick = onBack,
-                        modifier = Modifier
-                            .padding(all = 16.dp)
-                            .size(40.dp),
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_arrow_back),
-                            contentDescription = null
-                        )
-                    }
+//                    IconButton(
+//                        onClick = onBack,
+//                        modifier = Modifier
+//                            .padding(all = 16.dp)
+//                            .size(40.dp),
+//                    ) {
+//                        Icon(
+//                            painter = painterResource(R.drawable.ic_arrow_back),
+//                            contentDescription = null
+//                        )
+//                    }
 
                 }
 
@@ -200,16 +203,21 @@ fun MainScreen(
         if (showDialog) {
             AddListDialog(
                 listName = listName,
-                onListNameChange = { listName = it },
+                onListNameChange = { viewModel.processIntent(ShoppingListIntent.SetAddedName(listName)) },
                 onDismiss = { showDialog = false },
-                onConfirm = { showDialog = false }
+                onConfirm = { showDialog = false
+                            viewModel.processIntent(ShoppingListIntent.AddShoppingList(ShoppingList(
+                                id = state.addedId,
+                                name = state.addedName,
+                                icon = state.addedIcon
+                            )))},
             )
 
         }
 
     }
 
-    if (showBottomSheet && selectedCardIndex != -1) {
+    if (showBottomSheet && selectedCardIndex != -1L) {
         IconSelectionBottomSheet(
             onIconSelected = { selectedIcon ->
                 showBottomSheet = false
