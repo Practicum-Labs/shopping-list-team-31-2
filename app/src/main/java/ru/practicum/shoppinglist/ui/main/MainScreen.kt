@@ -52,6 +52,7 @@ import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 @Preview
 @Composable
 fun MainScreen(
+    onList: () -> Unit = {},
     onBack: () -> Unit = {},
     onTheme: () -> Unit = {},
     viewModel: ShoppingListViewModel = hiltViewModel()
@@ -70,9 +71,6 @@ fun MainScreen(
         viewModel = viewModel,
         context = context,
         onClearErrors = { viewModel.processIntent(ShoppingListIntent.ClearErrors) },
-//        onUpdateIcon = { id, icon ->
-//            viewModel.processIntent(ShoppingListIntent.UpdateListIcon(id, icon))
-//        },
         onClearNewListState = { viewModel.processIntent(ShoppingListIntent.ClearNewListState) },
         onSetShowBottomSheet = { showBottomSheet = it },
         onSetSelectedCardIndex = { selectedCardIndex = it }
