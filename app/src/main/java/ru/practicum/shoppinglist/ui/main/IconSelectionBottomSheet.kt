@@ -27,10 +27,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
+import ru.practicum.shoppinglist.ui.main.Variables.GRID_CELLS
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -40,6 +42,7 @@ fun IconSelectionBottomSheet(
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState()
+
     ShoppingListTheme {
         ModalBottomSheet(
             onDismissRequest = onDismiss,
@@ -71,8 +74,8 @@ fun IconSelectionBottomSheet(
                     .padding(horizontal = 40.dp)
             ) {
                 LazyVerticalGrid(
-                    columns = GridCells.Fixed(5),
-                    horizontalArrangement = Arrangement.spacedBy(20.dp),
+                    columns = GridCells.Fixed(GRID_CELLS),
+                    horizontalArrangement = Arrangement.spacedBy(20.dp, Alignment.CenterHorizontally),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                     modifier = Modifier
                         .fillMaxWidth()
@@ -80,10 +83,12 @@ fun IconSelectionBottomSheet(
                     contentPadding = PaddingValues(vertical = 24.dp)
                 ) {
                     items(IconResources.availableIcons) { iconRes ->
-                        IconSelectionItem(
-                            iconRes = iconRes,
-                            onSelect = { onIconSelected(iconRes) }
-                        )
+                        Box(modifier = Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                            IconSelectionItem(
+                                iconRes = iconRes,
+                                onSelect = { onIconSelected(iconRes) }
+                            )
+                        }
                     }
                 }
 
@@ -98,27 +103,26 @@ fun IconSelectionItem(
     iconRes: Int,
     onSelect: () -> Unit
 ) {
-    ShoppingListTheme {
-        Box(
-            modifier = Modifier
-                .size(40.dp)
-                .background(
-                    color = MaterialTheme.colorScheme.tertiary,
-                    shape = CircleShape
-                )
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) { onSelect() },
-            contentAlignment = Alignment.Center
-        ) {
-            Icon(
-                painter = painterResource(iconRes),
-                contentDescription = null,
-                modifier = Modifier.size(24.dp),
-                tint = MaterialTheme.colorScheme.tertiaryFixed
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .clip(CircleShape)
+            .background(
+                color = MaterialTheme.colorScheme.tertiary,
+                shape = CircleShape
             )
-        }
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { onSelect() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(iconRes),
+            contentDescription = null,
+            modifier = Modifier.size(24.dp),
+            tint = MaterialTheme.colorScheme.tertiaryFixed
+        )
     }
 }
 

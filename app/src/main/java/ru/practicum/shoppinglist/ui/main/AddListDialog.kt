@@ -27,8 +27,7 @@ fun AddListDialog(
     onListNameChange: (String) -> Unit,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    isRenameMode: Boolean = false
-
+    isRenameMode: Boolean = false,
 ) {
     ShoppingListTheme {
         AlertDialog(
@@ -55,7 +54,10 @@ fun AddListDialog(
                 )
             },
             confirmButton = {
-                TextButton(onClick = onConfirm) {
+                TextButton(
+                    onClick = onConfirm,
+                    enabled = listName.isNotBlank()
+                ) {
                     Text(
                         text = stringResource(R.string.create),
                         color = MaterialTheme.colorScheme.secondary,
