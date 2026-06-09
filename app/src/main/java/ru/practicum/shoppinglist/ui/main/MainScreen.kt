@@ -52,7 +52,6 @@ import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 @Preview
 @Composable
 fun MainScreen(
-    onList: () -> Unit = {},
     onBack: () -> Unit = {},
     onTheme: () -> Unit = {},
     viewModel: ShoppingListViewModel = hiltViewModel()
@@ -63,7 +62,6 @@ fun MainScreen(
     var showDialog by remember { mutableStateOf(false) }
     var showBottomSheet by remember { mutableStateOf(false) }
     var selectedCardIndex by remember { mutableStateOf(-1L) }
-    var pendingIcon by remember { mutableStateOf<Int?>(null) }
 
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
@@ -72,60 +70,45 @@ fun MainScreen(
         viewModel = viewModel,
         context = context,
         onClearErrors = { viewModel.processIntent(ShoppingListIntent.ClearErrors) },
-        onUpdateIcon = { id, icon ->
-            viewModel.processIntent(ShoppingListIntent.UpdateListIcon(id, icon))
-        },
+//        onUpdateIcon = { id, icon ->
+//            viewModel.processIntent(ShoppingListIntent.UpdateListIcon(id, icon))
+//        },
         onClearNewListState = { viewModel.processIntent(ShoppingListIntent.ClearNewListState) },
-        onSetPendingIcon = { pendingIcon = it },
         onSetShowBottomSheet = { showBottomSheet = it },
         onSetSelectedCardIndex = { selectedCardIndex = it }
     )
 
+    val handleIconSelection: (Int) -> Unit = { selectedIcon ->
+        val idToUpdate = if (selectedCardIndex != -1L) selectedCardIndex else state.addedId
+        if (idToUpdate != 0L) {
+            viewModel.processIntent(ShoppingListIntent.UpdateListIcon(id = idToUpdate, iconResId = selectedIcon))
+            showBottomSheet = false
+            selectedCardIndex = -1
+            viewModel.processIntent(ShoppingListIntent.ClearNewListState)
+        } else {
+            showBottomSheet = false
+        }
+    }
+
     ShoppingListTheme {
         Box(modifier = Modifier.fillMaxSize()) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .statusBarsPadding()
-                    .background(MaterialTheme.colorScheme.primary)
-            ) {
-                AppBarTop(
-                    title = stringResource(R.string.main_lists),
-                    search = ActionSearch(isView = true, onClick = { onSearch = true }),
-                    delete = ActionDelete(isView = true, onClick = { onDelete = true }),
-                    theme = ActionTheme(isView = true, onClick = onTheme),
-                )
-
-                if (state.shoppingLists.isEmpty()) {
-                    EmptyListsScreen()
-                } else {
-                    ShoppingListsContent(
-                        modifier = Modifier.weight(1f),
-                        lists = state.shoppingLists,
-                        onIconClick = { id ->
-                            showBottomSheet = true
-                            selectedCardIndex = id
-                        }
-                    )
+            MainScreenContent(
+                state = state,
+                onTheme = onTheme,
+                onSearchClick = { onSearch = true },
+                onDeleteClick = { onDelete = true },
+                onIconClick = { id ->
+                    showBottomSheet = true
+                    selectedCardIndex = id
                 }
-            }
+            )
 
-            Row(
+            MainScreenFab(
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 56.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.Bottom
-            ) {
-                Icon(
-                    painter = painterResource(R.drawable.ic_add_list_78),
-                    contentDescription = null,
-                    tint = Color.Unspecified,
-                    modifier = Modifier
-                        .clickable { showDialog = true }
-                        .size(78.dp)
-                )
-            }
+                onClick = { showDialog = true }
+            )
 
             MainScreenDialogs(
                 state = state,
@@ -141,7 +124,6 @@ fun MainScreen(
                 onDialogDismiss = { showDialog = false },
                 onDialogConfirm = {
                     showDialog = false
-                    pendingIcon = null
                     showBottomSheet = true
                     viewModel.processIntent(ShoppingListIntent.AddShoppingList)
                 },
@@ -149,25 +131,65 @@ fun MainScreen(
                 onBottomSheetDismiss = {
                     showBottomSheet = false
                     selectedCardIndex = -1
-                    pendingIcon = null
                     viewModel.processIntent(ShoppingListIntent.ClearNewListState)
                 },
-                onIconSelected = { selectedIcon ->
-                    val idToUpdate = if (selectedCardIndex != -1L) selectedCardIndex else state.addedId
-                    if (idToUpdate != 0L) {
-                        viewModel.processIntent(
-                            ShoppingListIntent.UpdateListIcon(id = idToUpdate, iconResId = selectedIcon)
-                        )
-                        showBottomSheet = false
-                        selectedCardIndex = -1
-                        viewModel.processIntent(ShoppingListIntent.ClearNewListState)
-                    } else {
-                        pendingIcon = selectedIcon
-                        showBottomSheet = false
-                    }
-                }
+                onIconSelected = handleIconSelection
             )
         }
+    }
+}
+
+@Composable
+private fun MainScreenContent(
+    state: ShoppingListState,
+    onTheme: () -> Unit,
+    onSearchClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onIconClick: (Long) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .statusBarsPadding()
+            .background(MaterialTheme.colorScheme.primary)
+    ) {
+        AppBarTop(
+            title = stringResource(R.string.main_lists),
+            search = ActionSearch(isView = true, onClick = onSearchClick),
+            delete = ActionDelete(isView = true, onClick = onDeleteClick),
+            theme = ActionTheme(isView = true, onClick = onTheme),
+        )
+
+        if (state.shoppingLists.isEmpty()) {
+            EmptyListsScreen()
+        } else {
+            ShoppingListsContent(
+                modifier = Modifier.weight(1f),
+                lists = state.shoppingLists,
+                onIconClick = onIconClick
+            )
+        }
+    }
+}
+
+@Composable
+private fun MainScreenFab(
+    modifier: Modifier,
+    onClick: () -> Unit
+) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.Bottom
+    ) {
+        Icon(
+            painter = painterResource(R.drawable.ic_add_list_78),
+            contentDescription = null,
+            tint = Color.Unspecified,
+            modifier = Modifier
+                .clickable(onClick = onClick)
+                .size(78.dp)
+        )
     }
 }
 
@@ -207,9 +229,7 @@ private fun HandleMainScreenEffects(
     viewModel: ShoppingListViewModel,
     context: Context,
     onClearErrors: () -> Unit,
-    onUpdateIcon: (Long, Int) -> Unit,
     onClearNewListState: () -> Unit,
-    onSetPendingIcon: (Int?) -> Unit,
     onSetShowBottomSheet: (Boolean) -> Unit,
     onSetSelectedCardIndex: (Long) -> Unit
 ) {
@@ -224,14 +244,12 @@ private fun HandleMainScreenEffects(
             }
             Toast.makeText(context, displayMessage, Toast.LENGTH_SHORT).show()
             onSetShowBottomSheet(false)
-            onSetPendingIcon(null)
             onClearErrors()
         }
     }
 
     LaunchedEffect(state.addedId) {
         if (state.addedId != 0L) {
-            val currentPendingIcon = state.addedId
             onSetSelectedCardIndex(state.addedId)
             onSetShowBottomSheet(true)
             onClearNewListState()
@@ -246,8 +264,7 @@ private fun ShoppingListsContent(
     onIconClick: (Long) -> Unit
 ) {
     LazyColumn(
-        modifier = Modifier
-
+        modifier = modifier
             .padding(bottom = 20.dp)
     ) {
         items(items = lists, key = { it.id }) { item ->
