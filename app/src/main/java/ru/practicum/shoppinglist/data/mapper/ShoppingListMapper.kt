@@ -22,6 +22,6 @@ class ShoppingListMapper @Inject constructor() {
     }
 
     fun mapEntityListsToShoppingLists(shoppingListsEntity: List<ShoppingListEntity>): List<ShoppingList> {
-        return shoppingListsEntity.map { shoppingList -> convertEntityToShoppingList(shoppingList) }
+        return shoppingListsEntity.reversed().map { shoppingList -> convertEntityToShoppingList(shoppingList) }
     }
 }

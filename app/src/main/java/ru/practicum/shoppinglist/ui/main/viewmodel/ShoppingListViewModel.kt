@@ -1,5 +1,6 @@
 package ru.practicum.shoppinglist.ui.main.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +19,7 @@ import javax.inject.Inject
 @HiltViewModel
 class ShoppingListViewModel @Inject constructor(
     private val shoppingListInteractor: ShoppingListInteractor,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ShoppingListState())
     val uiState: StateFlow<ShoppingListState> = _uiState.asStateFlow()
@@ -86,7 +88,7 @@ class ShoppingListViewModel @Inject constructor(
                     }
                 }
                 .collect { items ->
-                    _uiState.update { it.copy(shoppingLists = items.reversed()) }
+                    _uiState.update { it.copy(shoppingLists = items) }
                 }
         }
     }
