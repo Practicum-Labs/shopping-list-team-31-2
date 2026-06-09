@@ -1,12 +1,13 @@
 package ru.practicum.shoppinglist.ui.main.viewmodel
 
-import ru.practicum.shoppinglist.domain.model.ShoppingList
-
 sealed interface ShoppingListIntent {
-    data class AddShoppingList(val shoppingList: ShoppingList) : ShoppingListIntent
+    data object AddShoppingList : ShoppingListIntent
     data class SetAddedName(val addedName: String) : ShoppingListIntent
     data class SetAddedId(val addedId: Long) : ShoppingListIntent
     data class SetAddedIcon(val addedIcon: Int) : ShoppingListIntent
-    data object DeleteAll : ShoppingListIntent
     data object GetAllShoppingList : ShoppingListIntent
+    data object Delete : ShoppingListIntent
+    data object ClearErrors : ShoppingListIntent
+    data object ClearNewListState : ShoppingListIntent
+    data class UpdateListIcon(val id: Long, val iconResId: Int) : ShoppingListIntent
 }

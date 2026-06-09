@@ -54,7 +54,10 @@ fun AddListDialog(
                 )
             },
             confirmButton = {
-                TextButton(onClick = onConfirm) {
+                TextButton(
+                    onClick = onConfirm,
+                    enabled = listName.isNotBlank()
+                ) {
                     Text(
                         text = stringResource(R.string.create),
                         color = MaterialTheme.colorScheme.secondary,

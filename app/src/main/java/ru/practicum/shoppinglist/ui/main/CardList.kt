@@ -8,7 +8,6 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,18 +31,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.shadow
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Density
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.practicum.shoppinglist.R
+import ru.practicum.shoppinglist.ui.main.Variables.ANIMATION_SPEC
+import ru.practicum.shoppinglist.ui.main.Variables.MIN_OFFSET
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 import kotlin.math.roundToInt
 
@@ -60,219 +61,186 @@ fun CardList(
     val offsetX = remember { Animatable(0f) }
     var isActionsVisible by remember { mutableStateOf(false) }
     val density = LocalDensity.current
-    var actionButtonsWidthPx by remember { mutableStateOf(0f) }
-    val ACTION_BUTTONS_WIDTH = 168.dp
+    val actionButtonsWidth = 168.dp
+
+    val closeActions: () -> Unit = {
+        scope.launch {
+            offsetX.animateTo(0f, animationSpec = tween(ANIMATION_SPEC))
+            isActionsVisible = false
+        }
+    }
 
     ShoppingListTheme {
-        Column(
+        Box(
             modifier = Modifier
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.SpaceBetween,
-            horizontalAlignment = Alignment.CenterHorizontally
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Box(
+            SwipeActions(
+                onEdit = onEdit,
+                onCopy = onCopy,
+                onDelete = onDelete,
+                onClose = closeActions
+            )
+
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp)
-                    .padding(top = 16.dp)
+                    .height(56.dp)
+                    .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                    .swipeToRevealActions(
+                        offsetX = offsetX,
+                        density = density,
+                        actionWidth = actionButtonsWidth,
+                        onSwipeStateChange = { isActionsVisible = it },
+                        coroutineScope = scope
+                    ),
+                shape = RoundedCornerShape(12.dp),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .background(
-                            color = MaterialTheme.colorScheme.primary,
-                            shape = RoundedCornerShape(12.dp)
-                        )
-                        .onGloballyPositioned { layoutCoordinates ->
-                            actionButtonsWidthPx = layoutCoordinates.size.width.toFloat()
-                        },
-                    horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                shape = CircleShape
-                            )
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() }
-                            ) {
-                                scope.launch {
-                                    offsetX.animateTo(0f, animationSpec = tween(300))
-                                    isActionsVisible = false
-                                }
-                                onEdit()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_edit),
-                            contentDescription = "Edit",
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                shape = CircleShape
-                            )
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() }
-                            ) {
-                                scope.launch {
-                                    offsetX.animateTo(0f, animationSpec = tween(300))
-                                    isActionsVisible = false
-                                }
-                                onCopy()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_copy),
-                            contentDescription = "Copy",
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(8.dp))
-
-                    Box(
-                        modifier = Modifier
-                            .size(40.dp)
-                            .background(
-                                color = MaterialTheme.colorScheme.onSecondary,
-                                shape = CircleShape
-                            )
-                            .clickable(
-                                indication = null,
-                                interactionSource = remember { MutableInteractionSource() }
-                            ) {
-                                scope.launch {
-                                    offsetX.animateTo(0f, animationSpec = tween(300))
-                                    isActionsVisible = false
-                                }
-                                onDelete()
-                            },
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Icon(
-                            painter = painterResource(R.drawable.ic_delete),
-                            contentDescription = "Delete",
-                            modifier = Modifier.size(24.dp),
-                            tint = MaterialTheme.colorScheme.secondary
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.width(16.dp))
-                }
-
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(56.dp)
-                        .offset { IntOffset(offsetX.value.roundToInt(), 0) }
-                        .pointerInput(Unit) {
-                            detectHorizontalDragGestures(
-                                onDragStart = {
-                                    scope.launch {
-                                        offsetX.stop()
-                                    }
-                                },
-                                onDragEnd = {
-                                    scope.launch {
-                                        val maxOffset =
-                                            -with(density) { ACTION_BUTTONS_WIDTH.toPx() }
-                                        if (offsetX.value < -100f) {
-                                            offsetX.animateTo(maxOffset, animationSpec = tween(300))
-                                            isActionsVisible = true
-                                        } else {
-                                            offsetX.animateTo(0f, animationSpec = tween(300))
-                                            isActionsVisible = false
-                                        }
-                                    }
-                                },
-                                onDragCancel = {
-                                    scope.launch {
-                                        offsetX.animateTo(0f, animationSpec = tween(300))
-                                        isActionsVisible = false
-                                    }
-                                },
-                                onHorizontalDrag = { _, dragAmount ->
-                                    scope.launch {
-                                        val maxOffset =
-                                            -with(density) { ACTION_BUTTONS_WIDTH.toPx() }
-                                        val newOffset = offsetX.value + dragAmount
-                                        val clampedOffset = newOffset.coerceIn(maxOffset, 0f)
-                                        offsetX.snapTo(clampedOffset)
-                                    }
-                                }
-                            )
-                        }
-                        .shadow(
-                            elevation = 8.dp,
-                            shape = RoundedCornerShape(12.dp),
-                            clip = false,
-                            ambientColor = Color.Black.copy(alpha = 0.3f),
-                            spotColor = Color.Black.copy(alpha = 0.4f)
-                        ),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = CardDefaults.cardColors(
-                        containerColor = MaterialTheme.colorScheme.primary
-                    )
-                ) {
-                    Row(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(vertical = 8.dp),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(40.dp)
-                                .background(
-                                    color = MaterialTheme.colorScheme.tertiary,
-                                    shape = CircleShape
-                                )
-                        ) {
-                            Icon(
-                                painter = painterResource(iconCard),
-                                contentDescription = null,
-                                modifier = Modifier
-                                    .clickable(
-                                        indication = null,
-                                        interactionSource = remember { MutableInteractionSource() }
-                                    ) { onIconClick() }
-                                    .size(24.dp)
-                                    .align(Alignment.Center),
-                                tint = MaterialTheme.colorScheme.tertiaryFixed
-                            )
-                        }
-                        Text(
-                            text = textCard,
-                            color = MaterialTheme.colorScheme.onBackground,
-                            style = MaterialTheme.typography.bodyLarge,
-                            textAlign = TextAlign.Start,
-                            modifier = Modifier
-                                .padding(start = 8.dp)
-                                .padding(vertical = 8.dp)
-                                .fillMaxWidth()
-                        )
-                    }
-                }
+                CardContent(
+                    iconCard = iconCard,
+                    textCard = textCard,
+                    onIconClick = onIconClick
+                )
             }
         }
+    }
+}
+
+fun Modifier.swipeToRevealActions(
+    offsetX: Animatable<Float, *>,
+    density: Density,
+    actionWidth: Dp,
+    onSwipeStateChange: (Boolean) -> Unit,
+    coroutineScope: CoroutineScope
+): Modifier = this.pointerInput(Unit) {
+    detectHorizontalDragGestures(
+        onDragStart = {
+            coroutineScope.launch { offsetX.stop() }
+        },
+        onDragEnd = {
+            coroutineScope.launch {
+                val maxOffset = -with(density) { actionWidth.toPx() }
+                val isOpen = offsetX.value < MIN_OFFSET
+
+                if (isOpen) {
+                    offsetX.animateTo(maxOffset, animationSpec = tween(ANIMATION_SPEC))
+                    onSwipeStateChange(true)
+                } else {
+                    offsetX.animateTo(0f, animationSpec = tween(ANIMATION_SPEC))
+                    onSwipeStateChange(false)
+                }
+            }
+        },
+        onDragCancel = {
+            coroutineScope.launch {
+                offsetX.animateTo(0f, animationSpec = tween(ANIMATION_SPEC))
+                onSwipeStateChange(false)
+            }
+        },
+        onHorizontalDrag = { _, dragAmount ->
+            coroutineScope.launch {
+                val maxOffset = -with(density) { actionWidth.toPx() }
+                val newOffset = offsetX.value + dragAmount
+                offsetX.snapTo(newOffset.coerceIn(maxOffset, 0f))
+            }
+        }
+    )
+}
+@Composable
+private fun SwipeActions(
+    onEdit: () -> Unit,
+    onCopy: () -> Unit,
+    onDelete: () -> Unit,
+    onClose: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(56.dp)
+            .background(
+                color = MaterialTheme.colorScheme.primary,
+                shape = RoundedCornerShape(12.dp)
+            ),
+        horizontalArrangement = Arrangement.End,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        ActionButton(icon = R.drawable.ic_edit, description = "Edit", onClick = { onClose(); onEdit() })
+        Spacer(modifier = Modifier.width(8.dp))
+        ActionButton(icon = R.drawable.ic_copy, description = "Copy", onClick = { onClose(); onCopy() })
+        Spacer(modifier = Modifier.width(8.dp))
+        ActionButton(icon = R.drawable.ic_delete, description = "Delete", onClick = { onClose(); onDelete() })
+        Spacer(modifier = Modifier.width(16.dp))
+    }
+}
+
+@Composable
+private fun CardContent(
+    iconCard: Int,
+    textCard: String,
+    onIconClick: () -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        Box(
+            modifier = Modifier
+                .size(40.dp)
+                .background(
+                    color = MaterialTheme.colorScheme.tertiary,
+                    shape = CircleShape
+                )
+        ) {
+            Icon(
+                painter = painterResource(if (iconCard != 0 && iconCard != -1) iconCard else R.drawable.ic_set_basket),
+                contentDescription = null,
+                modifier = Modifier
+                    .clickable(
+                        indication = null,
+                        interactionSource = remember { MutableInteractionSource() }
+                    ) { onIconClick() }
+                    .size(24.dp)
+                    .align(Alignment.Center),
+                tint = MaterialTheme.colorScheme.tertiaryFixed
+            )
+        }
+        Text(
+            text = textCard,
+            color = MaterialTheme.colorScheme.onBackground,
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Start,
+            modifier = Modifier
+                .padding(start = 8.dp)
+                .fillMaxWidth()
+        )
+    }
+}
+
+@Composable
+private fun ActionButton(icon: Int, description: String, onClick: () -> Unit) {
+    Box(
+        modifier = Modifier
+            .size(40.dp)
+            .background(
+                color = MaterialTheme.colorScheme.onSecondary,
+                shape = CircleShape
+            )
+            .clickable(
+                indication = null,
+                interactionSource = remember { MutableInteractionSource() }
+            ) { onClick() },
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            painter = painterResource(icon),
+            contentDescription = description,
+            modifier = Modifier.size(24.dp),
+            tint = MaterialTheme.colorScheme.secondary
+        )
     }
 }
 
