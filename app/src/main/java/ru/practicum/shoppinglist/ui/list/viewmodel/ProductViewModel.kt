@@ -33,7 +33,6 @@ class ProductViewModel @Inject constructor(
         handleIntents()
     }
 
-    // Функции отвечающие за работу Intent c View (UI)
 
     fun sendIntent(intent: ProductIntent) {
         viewModelScope.launch { intents.emit(intent) }
@@ -56,7 +55,6 @@ class ProductViewModel @Inject constructor(
         }
     }
 
-    // ---ОБРАБОТЧИКИ INTENT---
     private fun getProducts() {
         viewModelScope.launch {
             productRepository.getProductsInShoppingList(shoppingListId).collect { products ->
@@ -108,7 +106,6 @@ class ProductViewModel @Inject constructor(
         }
     }
 
-    // Управление BottomSheet
 
     private fun showBottomSheet() {
         (_state.value as? ProductsState.Content)?.let { contentState ->
@@ -164,58 +161,4 @@ class ProductViewModel @Inject constructor(
             }
         }
     }
-
-  /*
-  // Для теста
-    private fun getProductsTest() {
-        val products = getLists()
-        _state.value = ProductsState.Content(products)
-    }
-
-    private fun getLists(): List<Product> {
-        return listOf(
-            Product(
-                id = 0,
-                name = "Яблоко",
-                quantity = "1",
-                unit = "кг",
-                isPurchased = false,
-                listId = 0,
-                position = 0,
-                isChecked = true
-            ),
-            Product(
-                id = 1,
-                name = "Яйца",
-                quantity = "10",
-                unit = "шт",
-                isPurchased = false,
-                listId = 0,
-                position = 1,
-                isChecked = false
-            ),
-            Product(
-                id = 2,
-                name = "Молоко",
-                quantity = "1",
-                unit = "л",
-                isPurchased = false,
-                listId = 0,
-                position = 2,
-                isChecked = false
-            ),
-            Product(
-                id = 3,
-                name = "Сыр",
-                quantity = "1",
-                unit = "уп",
-                isPurchased = false,
-                listId = 0,
-                position = 3,
-                isChecked = false
-            ),
-        )
-    }
-
-   */
 }
