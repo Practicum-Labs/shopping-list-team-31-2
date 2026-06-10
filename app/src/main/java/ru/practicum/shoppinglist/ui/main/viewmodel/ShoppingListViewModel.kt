@@ -31,17 +31,65 @@ class ShoppingListViewModel @Inject constructor(
     fun processIntent(intent: ShoppingListIntent) = when (intent) {
         is ShoppingListIntent.AddShoppingList -> handleAddItem()
         is ShoppingListIntent.GetAllShoppingList -> handleGetAllItems()
-        is ShoppingListIntent.SetAddedName -> _uiState.update { it.copy(
-            addedName = intent.addedName,
-            errorMessage = null
-        ) }
+        is ShoppingListIntent.SetAddedName -> _uiState.update {
+            it.copy(
+                addedName = intent.addedName,
+                errorMessage = null
+            )
+        }
+
         is ShoppingListIntent.SetAddedId -> _uiState.update { it.copy(addedId = intent.addedId) }
         is ShoppingListIntent.SetAddedIcon -> _uiState.update { it.copy(addedIcon = intent.addedIcon) }
-        is ShoppingListIntent.Delete -> handleDelete()
+        is ShoppingListIntent.Delete -> handleDeleteAllLists()
         is ShoppingListIntent.ClearErrors -> _uiState.update { it.copy(errorMessage = null) }
         is ShoppingListIntent.ClearNewListState -> _uiState.update { it.copy(addedId = 0L) }
         is ShoppingListIntent.UpdateListIcon -> handleUpdateIcon(intent.id, intent.iconResId)
-        else -> {}
+
+        is ShoppingListIntent.UpdateSearchQuery -> {
+            _uiState.update { it.copy(searchQuery = intent.query) }
+            savedStateHandle["search_query"] = intent.query
+        }
+
+        is ShoppingListIntent.SetSearchActive -> {
+            _uiState.update {
+                if (!intent.active) {
+                    it.copy(isSearchActive = false, searchQuery = "")
+                } else {
+                    it.copy(isSearchActive = true)
+                }
+            }
+            savedStateHandle["is_search_active"] = intent.active
+        }
+
+        is ShoppingListIntent.ShowCreateDialog -> {
+            _uiState.update { it.copy(dialogState = DialogState.Create(name = "")) }
+            savedStateHandle["dialog_type"] = "create"
+        }
+
+        is ShoppingListIntent.HideDialog -> {
+            _uiState.update { it.copy(dialogState = DialogState.Hidden) }
+            savedStateHandle.remove("dialog_type")
+        }
+
+        is ShoppingListIntent.UpdateDialogName -> {
+            _uiState.update { currentState ->
+                val newDialogState = when (val dialog = currentState.dialogState) {
+                    is DialogState.Create -> dialog.copy(name = intent.name)
+                    else -> dialog
+                }
+                currentState.copy(dialogState = newDialogState)
+            }
+            savedStateHandle["dialog_name"] = intent.name
+        }
+
+        is ShoppingListIntent.ShowDeleteAllDialog -> {
+            _uiState.update { it.copy(deleteAllDialogVisible = true) }
+        }
+
+        is ShoppingListIntent.HideDeleteAllDialog -> {
+            _uiState.update { it.copy(deleteAllDialogVisible = false) }
+        }
+
     }
 
     private fun handleAddItem() {
@@ -51,7 +99,8 @@ class ShoppingListViewModel @Inject constructor(
             return
         }
 
-        val isDuplicate = _uiState.value.shoppingLists.any { it.name.equals(name, ignoreCase = true) }
+        val isDuplicate =
+            _uiState.value.shoppingLists.any { it.name.equals(name, ignoreCase = true) }
         if (isDuplicate) {
             _uiState.update { it.copy(errorMessage = R.string.error_duplicate_name.toString()) }
             return
@@ -68,7 +117,7 @@ class ShoppingListViewModel @Inject constructor(
                 _uiState.update { currentState ->
                     currentState.copy(
                         addedId = newId,
-                        addedIcon = R.drawable.ic_set_basket,
+                        addedIcon = R.drawable.ic_list_alt,
                         addedName = ""
                     )
                 }
@@ -93,11 +142,25 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    private fun handleDelete() {
+    private fun handleDeleteAllLists() {
         viewModelScope.launch {
-            shoppingListInteractor.delete()
+            try {
+                shoppingListInteractor.delete()
+                _uiState.update {
+                    it.copy(
+                        deleteAllDialogVisible = false,
+                        searchQuery = "",
+                        isSearchActive = false
+                    )
+                }
+                // Перезагружаем списки
+                handleGetAllItems()
+            } catch (e: IOException) {
+                _uiState.update { it.copy(errorMessage = e.message) }
+            }
         }
     }
+
     private fun handleUpdateIcon(id: Long, iconResId: Int) {
         viewModelScope.launch {
             try {

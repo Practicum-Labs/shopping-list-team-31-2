@@ -24,11 +24,8 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
@@ -55,18 +52,17 @@ fun CardList(
     onIconClick: () -> Unit,
     onEdit: () -> Unit,
     onCopy: () -> Unit,
-    onDelete: () -> Unit
+    onDelete: () -> Unit,
+    onCardClick: () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     val offsetX = remember { Animatable(0f) }
-    var isActionsVisible by remember { mutableStateOf(false) }
     val density = LocalDensity.current
     val actionButtonsWidth = 168.dp
 
     val closeActions: () -> Unit = {
         scope.launch {
             offsetX.animateTo(0f, animationSpec = tween(ANIMATION_SPEC))
-            isActionsVisible = false
         }
     }
 
@@ -88,11 +84,12 @@ fun CardList(
                     .fillMaxWidth()
                     .height(56.dp)
                     .offset { IntOffset(offsetX.value.roundToInt(), 0) }
+                    .clickable { onCardClick() }
                     .swipeToRevealActions(
                         offsetX = offsetX,
                         density = density,
                         actionWidth = actionButtonsWidth,
-                        onSwipeStateChange = { isActionsVisible = it },
+                        onSwipeStateChange = { },
                         coroutineScope = scope
                     ),
                 shape = RoundedCornerShape(12.dp),

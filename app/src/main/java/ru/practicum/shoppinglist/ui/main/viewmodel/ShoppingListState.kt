@@ -8,6 +8,28 @@ data class ShoppingListState(
     val errorMessage: String? = null,
     val addedName: String = "",
     val addedId: Long = 0L,
-    val addedIcon: Int = R.drawable.ic_set_basket
+    val addedIcon: Int = R.drawable.ic_list_alt,
 
-)
+    val searchQuery: String = "",
+    val isSearchActive: Boolean = false,
+    val dialogState: DialogState = DialogState.Hidden,
+    val deleteAllDialogVisible: Boolean = false,
+
+) {
+
+    val displayLists: List<ShoppingList>
+        get() = if (isSearchActive && searchQuery.isNotBlank()) {
+            shoppingLists.filter {
+                it.name.contains(searchQuery, ignoreCase = true)
+            }
+        } else {
+            shoppingLists
+        }
+
+}
+
+sealed class DialogState {
+    object Hidden : DialogState()
+    data class Create(val name: String = "") : DialogState()
+
+}
