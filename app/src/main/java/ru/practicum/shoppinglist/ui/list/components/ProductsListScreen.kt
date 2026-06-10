@@ -20,24 +20,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
-import ru.practicum.shoppinglist.ui.list.TestProduct
+import ru.practicum.shoppinglist.domain.model.Product
 import ru.practicum.shoppinglist.ui.theme.DriverColorLight
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Composable
 fun ProductsListScreen(
-    products: List<TestProduct>,
-    paddingValues: PaddingValues
+    products: List<Product>,
+    paddingValues: PaddingValues,
+    onDelete: (Long) -> Unit
 ) {
     ShoppingListTheme {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.primary),
-                contentPadding = paddingValues,
+            contentPadding = paddingValues,
         ) {
             items(
                 items = products,
@@ -45,7 +45,7 @@ fun ProductsListScreen(
             ) { product ->
                 ProductItem(
                     item = product,
-                    onSelect = { product }
+                    onSelect = { onDelete(product.id) }
                 )
                 HorizontalDivider(
                     thickness = 1.dp,
@@ -59,8 +59,8 @@ fun ProductsListScreen(
 
 @Composable
 fun ProductItem(
-    item: TestProduct,
-    onSelect: (TestProduct) -> Unit = {},
+    item: Product,
+    onSelect: (Product) -> Unit = {},
     viewIconMenu: Boolean = false
 ) {
     var idIcon = R.drawable.ic_check_circle
@@ -110,18 +110,9 @@ fun ProductItem(
     }
 }
 
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun ProductsListScreenPreview() {
-    val lists = getLists()
-    ProductsListScreen(lists, paddingValues = PaddingValues())
-}
-
-fun getLists(): List<TestProduct> {
-    return listOf(
-        TestProduct(id = 0, name = "Яблоко", quantity = "1", unit = "кг", isChecked = true),
-        TestProduct(id = 1, name = "Яйца", quantity = "10", unit = "шт", isChecked = false),
-        TestProduct(id = 2, name = "Молоко", quantity = "1", unit = "л", isChecked = false),
-        TestProduct(id = 3, name = "Сыр", quantity = "1", unit = "уп", isChecked = false),
-    )
-}
+// @Preview(showBackground = true, showSystemUi = true)
+// @Composable
+// private fun ProductsListScreenPreview() {
+//    val lists = getLists()
+//    ProductsListScreen(lists, onDelete = () -> Unit, paddingValues = PaddingValues())
+// }

@@ -10,6 +10,7 @@ import dagger.hilt.components.SingletonComponent
 import ru.practicum.shoppinglist.data.local.dao.ProductDao
 import ru.practicum.shoppinglist.data.local.dao.ShoppingListDao
 import ru.practicum.shoppinglist.data.local.database.AppDatabase
+import ru.practicum.shoppinglist.data.local.database.Converters
 import javax.inject.Singleton
 
 @Module
@@ -38,5 +39,11 @@ object DatabaseModule {
     @Singleton
     fun provideProductDao(database: AppDatabase): ProductDao {
         return database.productDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideConverters(): Converters {
+        return Converters()
     }
 }

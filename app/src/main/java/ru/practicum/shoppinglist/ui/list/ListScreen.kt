@@ -1,17 +1,18 @@
 package ru.practicum.shoppinglist.ui.list
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -21,6 +22,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -29,13 +31,12 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LayoutCoordinates
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import kotlinx.coroutines.launch
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.list.components.BottomSheetMenu
@@ -43,7 +44,10 @@ import ru.practicum.shoppinglist.ui.list.components.BottomSheetScreen
 import ru.practicum.shoppinglist.ui.list.components.IllustrationScreen
 import ru.practicum.shoppinglist.ui.list.components.ProductsListScreen
 import ru.practicum.shoppinglist.ui.list.components.ShowFab
-import ru.practicum.shoppinglist.ui.list.components.getLists
+import ru.practicum.shoppinglist.ui.list.viewmodel.NewProductData
+import ru.practicum.shoppinglist.ui.list.viewmodel.ProductIntent
+import ru.practicum.shoppinglist.ui.list.viewmodel.ProductViewModel
+import ru.practicum.shoppinglist.ui.list.viewmodel.ProductsState
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 data class ActionBack(
@@ -58,50 +62,52 @@ data class ActionMenu(
 
 const val WEIGHT_COLUMN = 0.5f
 
-data class TestProduct(
-    val id: Int,
-    val name: String,
-    val quantity: String,
-    val unit: String,
-    val isChecked: Boolean
-)
-
+@SuppressLint("RestrictedApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ListScreen(
     onBack: () -> Unit = {},
+    viewModel: ProductViewModel = hiltViewModel()
 ) {
-    var showDialogAdd by remember { mutableStateOf(false) }
-    val lists = getLists()
+    // ViewModel
+    val state by viewModel.state.collectAsState()
 
-    val scope = rememberCoroutineScope()
+    val shouldBeVisible = (state as? ProductsState.Content)?.isBottomSheetVisible ?: false
+
+    // отслеживание BottomSheet
     var showBottomSheet by remember { mutableStateOf(false) }
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-    var fabOffsetY by remember { mutableStateOf(0f) }
 
+    // BottomSheetMenu
     val scopeMenu = rememberCoroutineScope()
     var showMenu by remember { mutableStateOf(false) }
     val sheetStateMenu = rememberModalBottomSheetState(skipPartiallyExpanded = true)
 
-    LaunchedEffect(sheetState.isVisible) {
-        if (!sheetState.isVisible) {
-            showBottomSheet = false
+    var bottomSheetHeight by remember { mutableStateOf(0) }
+
+    LaunchedEffect(Unit) {
+        viewModel.sendIntent(ProductIntent.LoadProducts)
+    }
+
+    LaunchedEffect(shouldBeVisible) {
+        if (showBottomSheet != shouldBeVisible) {
+            showBottomSheet = shouldBeVisible
         }
     }
 
-    LaunchedEffect(sheetStateMenu.isVisible) {
-        if (!sheetStateMenu.isVisible) {
-            showMenu = false
-        }
+    LaunchedEffect(!sheetStateMenu.isVisible) {
+        showMenu = false
     }
 
     ShoppingListTheme {
-        Box(modifier = Modifier.fillMaxSize()) {
+        Box(
+            modifier = Modifier.fillMaxSize()
+        ) {
             Scaffold(
                 topBar = {
                     AppBarTop(
                         title = stringResource(id = R.string.products),
-                        back = ActionBack(isView = true, onClick =  onBack ),
+                        back = ActionBack(isView = true, onClick = onBack),
                         menu = ActionMenu(isView = true, onClick = { showMenu = true })
                     )
                 },
@@ -114,56 +120,82 @@ fun ListScreen(
                         horizontalAlignment = Alignment.CenterHorizontally
 
                     ) {
-                        if (lists.isEmpty()) {
-                            IllustrationScreen(
-                                image = R.drawable.ic_product_list,
-                                title = R.string.lists_are_empty,
-                                description = R.string.lists_are_empty_description,
-                            )
-                        } else {
-                            ProductsListScreen(lists, paddingValues)
+                        when (state) {
+                            is ProductsState.Empty -> {
+                                IllustrationScreen(
+                                    image = R.drawable.ic_product_list,
+                                    title = R.string.lists_are_empty,
+                                    description = R.string.lists_are_empty_description,
+                                )
+                            }
+
+                            is ProductsState.Content -> {
+                                val products = (state as ProductsState.Content).products
+                                ProductsListScreen(
+                                    products = products,
+                                    onDelete = { productId ->
+                                        viewModel.sendIntent(ProductIntent.DeleteProduct(productId))
+                                    },
+                                    paddingValues = paddingValues
+                                )
+                            }
                         }
                     }
                 }
             )
 
-            if (showBottomSheet) {
+            ShowFab(
+                onClick = {
+                    if ((state as? ProductsState.Content)?.isBottomSheetVisible == true) {
+                        viewModel.sendIntent(ProductIntent.SaveNewProduct)
+                    } else {
+                        viewModel.sendIntent(ProductIntent.ShowAddProductBottomSheet)
+                    }
+                },
+                isBottomSheetVisible = shouldBeVisible,
+                modifier = Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(end = 16.dp, bottom = 56.dp),
+                bottomSheetHeight = bottomSheetHeight
+            )
+
+            if (shouldBeVisible) {
                 ModalBottomSheet(
-                    onDismissRequest = { scope.launch { sheetState.hide() } },
+                    onDismissRequest = {
+                        viewModel.sendIntent(ProductIntent.HideBottomSheet)
+                        showBottomSheet = false
+                    },
                     sheetState = sheetState,
-                    modifier = Modifier
-                        .onGloballyPositioned{coordinates: LayoutCoordinates ->
-                            fabOffsetY = coordinates.positionInWindow().y
-                        }
                 ) {
-                    BottomSheetScreen(
-                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .onGloballyPositioned { coordinates ->
+                                bottomSheetHeight = coordinates.size.height
+                            }
+                    ) {
+                        val newProductData = (state as? ProductsState.Content)?.newProductData
+                        BottomSheetScreen(
+                            productData = newProductData ?: NewProductData("", "", ""),
+                            onValueChange = { field, value ->
+                                viewModel.sendIntent(
+                                    ProductIntent.OnInputValueChanged(
+                                        field,
+                                        value
+                                    )
+                                )
+                            }
+                        )
+                    }
                 }
             }
 
-            ShowFab(
-                onClick = { showBottomSheet = true },
-                image = if (showDialogAdd) {
-                    R.drawable.ic_check
-                } else {
-                    R.drawable.ic_add
-                },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 56.dp)
-                //        .offset { IntOffset(x = 0, y = fabOffsetY) }
-            )
-
-            if (showMenu) {
-                showBottomSheet = false
-
-                ModalBottomSheet(
-                    onDismissRequest = { scopeMenu.launch { sheetStateMenu.hide() } },
-                    sheetState = sheetStateMenu,
-                ) {
-                    BottomSheetMenu(
-                    )
-                }
+            ModalBottomSheet(
+                onDismissRequest = { scopeMenu.launch { sheetStateMenu.hide() } },
+                sheetState = sheetStateMenu,
+            ) {
+                showBottomSheet = showMenu == true
+                BottomSheetMenu(showMenu)
             }
         }
     }
@@ -232,7 +264,7 @@ private fun AppTitle(
         modifier = Modifier
             .fillMaxHeight()
             .padding(start = 16.dp)
-            .padding(vertical = 16.dp),
+            .padding(vertical = 20.dp),
         style = MaterialTheme.typography.titleLarge,
         color = MaterialTheme.colorScheme.onBackground
     )

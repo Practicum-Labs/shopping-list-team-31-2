@@ -29,25 +29,32 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
+import ru.practicum.shoppinglist.ui.list.viewmodel.FieldType
+import ru.practicum.shoppinglist.ui.list.viewmodel.NewProductData
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun BottomSheetScreen() {
+fun BottomSheetScreen(
+    productData: NewProductData,
+    onValueChange: (FieldType, String) -> Unit
+) {
     val units = stringArrayResource(R.array.units_lists) // .toList()
 
-    var name by remember { mutableStateOf("") }
-    var quantity by remember { mutableStateOf("") }
+    val name = productData.name
+    var quantity = productData.quantity
+    val selectedUnit = productData.unit
+
     var expanded by remember { mutableStateOf(false) }
-    var selectedUnit by remember { mutableStateOf("") }
 
     val valueIntQuantity = quantity.toIntOrNull() ?: 0
     val enabledButtonMinus = valueIntQuantity > 0
 
     Surface(
-        modifier = Modifier.fillMaxWidth().imePadding(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .imePadding(),
         color = MaterialTheme.colorScheme.inverseSurface,
     ) {
         Column(
@@ -58,7 +65,9 @@ fun BottomSheetScreen() {
         ) {
             OutlinedTextField(
                 value = name,
-                onValueChange = { name = it },
+                onValueChange = { newName ->
+                    onValueChange(FieldType.NAME, newName)
+                },
                 placeholder = {
                     Text(
                         text = stringResource(R.string.product),
@@ -89,10 +98,10 @@ fun BottomSheetScreen() {
                 // Ввод количества
                 OutlinedTextField(
                     value = quantity,
-                    onValueChange = {
+                    onValueChange = { newQuantity ->
                         // Позволяем вводить только цифры
-                        if (it.isEmpty() || it.matches(Regex("\\d*"))) {
-                            quantity = it
+                        if (newQuantity.isEmpty() || newQuantity.matches(Regex("\\d*"))) {
+                            onValueChange(FieldType.QUANTITY, newQuantity)
                         }
                     },
                     placeholder = {
@@ -144,8 +153,8 @@ fun BottomSheetScreen() {
                         colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
                         modifier = Modifier
                             .menuAnchor(
-                            type = ExposedDropdownMenuAnchorType.PrimaryNotEditable
-                        )
+                                type = ExposedDropdownMenuAnchorType.PrimaryNotEditable
+                            )
                     )
 
                     ExposedDropdownMenu(
@@ -156,7 +165,7 @@ fun BottomSheetScreen() {
                             DropdownMenuItem(
                                 text = { Text(unit) },
                                 onClick = {
-                                    selectedUnit = unit
+                                    onValueChange(FieldType.UNIT, unit)
                                     expanded = false
                                 }
                             )
@@ -190,9 +199,9 @@ fun modifyIntToString(numberAsString: String, increment: Boolean = true): String
     return if (newValue > 0) newValue.toString() else ""
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(showBackground = true, showSystemUi = true)
-@Composable
-private fun BottomSheetScreenPreview() {
-    BottomSheetScreen()
-}
+// @OptIn(ExperimentalMaterial3Api::class)
+// @Preview(showBackground = true, showSystemUi = true)
+// @Composable
+// private fun BottomSheetScreenPreview() {
+//    BottomSheetScreen()
+// }
