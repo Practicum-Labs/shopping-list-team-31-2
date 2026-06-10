@@ -2,8 +2,10 @@ package ru.practicum.shoppinglist.ui.list.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -11,12 +13,13 @@ import ru.practicum.shoppinglist.domain.model.Product
 import ru.practicum.shoppinglist.domain.repository.ProductRepository
 import javax.inject.Inject
 
+@HiltViewModel
 class ProductViewModel @Inject constructor(
     private val productRepository: ProductRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow<ProductsState>(ProductsState.Empty)
-    val state = _state.asStateFlow()
+    val state: StateFlow<ProductsState> = _state.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<UiEffect>()
     val uiEffect = _uiEffect.asSharedFlow()

@@ -2,23 +2,18 @@ package ru.practicum.shoppinglist.ui.list
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -30,9 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -48,19 +41,10 @@ import ru.practicum.shoppinglist.ui.list.viewmodel.NewProductData
 import ru.practicum.shoppinglist.ui.list.viewmodel.ProductIntent
 import ru.practicum.shoppinglist.ui.list.viewmodel.ProductViewModel
 import ru.practicum.shoppinglist.ui.list.viewmodel.ProductsState
+import ru.practicum.shoppinglist.ui.navigation.ActionBack
+import ru.practicum.shoppinglist.ui.navigation.ActionMenu
+import ru.practicum.shoppinglist.ui.navigation.AppBarTop
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
-
-data class ActionBack(
-    val isView: Boolean = false,
-    val onClick: (() -> Unit)? = null
-)
-
-data class ActionMenu(
-    val isView: Boolean = false,
-    val onClick: (() -> Unit)? = null,
-)
-
-const val WEIGHT_COLUMN = 0.5f
 
 @SuppressLint("RestrictedApi")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -95,8 +79,10 @@ fun ListScreen(
         }
     }
 
-    LaunchedEffect(!sheetStateMenu.isVisible) {
-        showMenu = false
+    LaunchedEffect(sheetStateMenu.isVisible) {
+        if (!sheetStateMenu.isVisible) {
+            showMenu = false
+        }
     }
 
     ShoppingListTheme {
@@ -112,51 +98,22 @@ fun ListScreen(
                     )
                 },
                 content = { paddingValues ->
-                    Column(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(top = 16.dp),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-
-                    ) {
-                        when (state) {
-                            is ProductsState.Empty -> {
-                                IllustrationScreen(
-                                    image = R.drawable.ic_product_list,
-                                    title = R.string.lists_are_empty,
-                                    description = R.string.lists_are_empty_description,
-                                )
-                            }
-
-                            is ProductsState.Content -> {
-                                val products = (state as ProductsState.Content).products
-                                ProductsListScreen(
-                                    products = products,
-                                    onDelete = { productId ->
-                                        viewModel.sendIntent(ProductIntent.DeleteProduct(productId))
-                                    },
-                                    paddingValues = paddingValues
-                                )
-                            }
-                        }
-                    }
+                    ContentScreen(
+                        state = state,
+                        viewModel = viewModel,
+                        paddingValues = paddingValues
+                    )
                 }
             )
 
-            ShowFab(
-                onClick = {
-                    if ((state as? ProductsState.Content)?.isBottomSheetVisible == true) {
-                        viewModel.sendIntent(ProductIntent.SaveNewProduct)
-                    } else {
-                        viewModel.sendIntent(ProductIntent.ShowAddProductBottomSheet)
-                    }
-                },
-                isBottomSheetVisible = shouldBeVisible,
+            ShowFabScreen(
+                state = state,
+                viewModel = viewModel,
+                shouldBeVisible = shouldBeVisible,
+                bottomSheetHeight = bottomSheetHeight,
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 56.dp),
-                bottomSheetHeight = bottomSheetHeight
+                    .padding(end = 16.dp, bottom = 56.dp)
             )
 
             if (shouldBeVisible) {
@@ -190,116 +147,78 @@ fun ListScreen(
                 }
             }
 
-            ModalBottomSheet(
-                onDismissRequest = { scopeMenu.launch { sheetStateMenu.hide() } },
-                sheetState = sheetStateMenu,
-            ) {
-                showBottomSheet = showMenu == true
-                BottomSheetMenu(showMenu)
+            if (showMenu) {
+                showBottomSheet = false
+
+                ModalBottomSheet(
+                    onDismissRequest = { scopeMenu.launch { sheetStateMenu.hide() } },
+                    sheetState = sheetStateMenu,
+                ) {
+                    BottomSheetMenu()
+                }
             }
         }
     }
 }
 
 @Composable
-private fun AppBarTop(
-    title: String,
-    back: ActionBack = ActionBack(),
-    menu: ActionMenu = ActionMenu()
+private fun ShowFabScreen(
+    state: ProductsState,
+    viewModel: ProductViewModel,
+    shouldBeVisible: Boolean,
+    bottomSheetHeight: Int,
+    modifier: Modifier
 ) {
-    Row(
+    ShowFab(
+        onClick = {
+            if ((state as? ProductsState.Content)?.isBottomSheetVisible == true) {
+                viewModel.sendIntent(ProductIntent.SaveNewProduct)
+            } else {
+                viewModel.sendIntent(ProductIntent.ShowAddProductBottomSheet)
+            }
+        },
+        isBottomSheetVisible = shouldBeVisible,
+        modifier = modifier,
+        bottomSheetHeight = bottomSheetHeight
+    )
+}
+
+@Composable
+private fun ContentScreen(
+    state: ProductsState,
+    viewModel: ProductViewModel,
+    paddingValues: PaddingValues
+) {
+    Column(
         modifier = Modifier
-            .fillMaxWidth()
-            .height(64.dp),
-        verticalAlignment = Alignment.CenterVertically
+            .fillMaxSize()
+            .statusBarsPadding()
+            .background(MaterialTheme.colorScheme.primary),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+
     ) {
-        AppButtonBack(
-            isViewIcon = back.isView,
-            onClick = back.onClick
-        )
+        when (state) {
+            is ProductsState.Empty -> {
+                IllustrationScreen(
+                    image = R.drawable.ic_product_list,
+                    title = R.string.lists_are_empty,
+                    description = R.string.lists_are_empty_description,
+                )
+            }
 
-        AppTitle(title = title)
-
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .weight(WEIGHT_COLUMN)
-                .padding(end = 8.dp),
-            horizontalAlignment = Alignment.End,
-            verticalArrangement = Arrangement.Center
-        ) {
-            AppButtonAction(
-                menu
-            )
+            is ProductsState.Content -> {
+                val products = (state as ProductsState.Content).products
+                ProductsListScreen(
+                    products = products,
+                    onDelete = { productId ->
+                        viewModel.sendIntent(ProductIntent.DeleteProduct(productId))
+                    },
+                    paddingValues = paddingValues
+                )
+            }
         }
     }
-}
-
-@Composable
-private fun AppButtonBack(
-    isViewIcon: Boolean,
-    onClick: (() -> Unit)?
-) {
-    if (isViewIcon) {
-        Icon(
-            painter = painterResource(R.drawable.ic_arrow_back),
-            contentDescription = null,
-            tint = MaterialTheme.colorScheme.onBackground,
-            modifier = Modifier
-                .padding(start = 16.dp)
-                .clickable(
-                    indication = null,
-                    interactionSource = remember { MutableInteractionSource() }
-                ) { onClick?.invoke() },
-        )
-    }
-}
-
-@Composable
-private fun AppTitle(
-    title: String
-) {
-    Text(
-        text = title,
-        modifier = Modifier
-            .fillMaxHeight()
-            .padding(start = 16.dp)
-            .padding(vertical = 20.dp),
-        style = MaterialTheme.typography.titleLarge,
-        color = MaterialTheme.colorScheme.onBackground
-    )
-}
-
-@Composable
-private fun AppButtonAction(
-    menu: ActionMenu = ActionMenu()
-) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.End,
-        modifier = Modifier.background(MaterialTheme.colorScheme.primary)
-    ) {
-        MenuIcon(menu)
-    }
-}
-
-@Composable
-private fun MenuIcon(
-    menu: ActionMenu
-) {
-    if (!menu.isView) return
-
-    Icon(
-        painter = painterResource(R.drawable.ic_more_vert),
-        contentDescription = null,
-        tint = Color.Unspecified,
-        modifier = Modifier
-            .padding(end = 20.dp)
-            .clickable(
-                indication = null,
-                interactionSource = remember { MutableInteractionSource() }
-            ) { menu.onClick?.invoke() },
-    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)

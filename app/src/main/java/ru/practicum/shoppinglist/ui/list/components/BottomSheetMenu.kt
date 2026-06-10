@@ -25,10 +25,7 @@ import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Composable
-fun BottomSheetMenu(
-    isView: Boolean = false
-) {
-    if (!isView) return
+fun BottomSheetMenu() {
     ShoppingListTheme {
         Surface(
             modifier = Modifier.fillMaxWidth(),

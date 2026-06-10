@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.domain.model.Product
@@ -45,7 +46,8 @@ fun ProductsListScreen(
             ) { product ->
                 ProductItem(
                     item = product,
-                    onSelect = { onDelete(product.id) }
+                    onSelect = { onDelete(product.id) },
+                    product.isPurchased
                 )
                 HorizontalDivider(
                     thickness = 1.dp,
@@ -110,9 +112,58 @@ fun ProductItem(
     }
 }
 
-// @Preview(showBackground = true, showSystemUi = true)
-// @Composable
-// private fun ProductsListScreenPreview() {
-//    val lists = getLists()
-//    ProductsListScreen(lists, onDelete = () -> Unit, paddingValues = PaddingValues())
-// }
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun ProductsListScreenPreview() {
+    val lists = getLists()
+    ProductsListScreen(
+        lists,
+        paddingValues = PaddingValues(),
+        onDelete = { }
+    )
+}
+
+fun getLists(): List<Product> {
+    return listOf(
+        Product(
+            id = 0,
+            name = "Яблоко",
+            quantity = "1",
+            unit = "кг",
+            isPurchased = false,
+            listId = 0,
+            position = 0,
+            isChecked = true
+        ),
+        Product(
+            id = 1,
+            name = "Яйца",
+            quantity = "10",
+            unit = "шт",
+            isPurchased = false,
+            listId = 0,
+            position = 1,
+            isChecked = false
+        ),
+        Product(
+            id = 2,
+            name = "Молоко",
+            quantity = "1",
+            unit = "л",
+            isPurchased = true,
+            listId = 0,
+            position = 2,
+            isChecked = false
+        ),
+        Product(
+            id = 3,
+            name = "Сыр",
+            quantity = "1",
+            unit = "уп",
+            isPurchased = false,
+            listId = 0,
+            position = 3,
+            isChecked = false
+        ),
+    )
+}

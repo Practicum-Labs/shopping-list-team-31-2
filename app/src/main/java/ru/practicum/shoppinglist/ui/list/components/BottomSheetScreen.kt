@@ -29,6 +29,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.list.viewmodel.FieldType
@@ -199,9 +200,12 @@ fun modifyIntToString(numberAsString: String, increment: Boolean = true): String
     return if (newValue > 0) newValue.toString() else ""
 }
 
-// @OptIn(ExperimentalMaterial3Api::class)
-// @Preview(showBackground = true, showSystemUi = true)
-// @Composable
-// private fun BottomSheetScreenPreview() {
-//    BottomSheetScreen()
-// }
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+private fun BottomSheetScreenPreview() {
+    BottomSheetScreen(
+        productData = NewProductData("", "", ""),
+        onValueChange = { fieldType, value -> }
+    )
+}
