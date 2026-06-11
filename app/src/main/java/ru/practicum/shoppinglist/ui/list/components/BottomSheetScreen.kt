@@ -176,17 +176,22 @@ fun BottomSheetScreen(
 
                 // Кнопки
                 RoundButtonScreen(
-                    onClick = { quantity = modifyIntToString(quantity, false) },
+                    onClick = {
+                        val newQuantity = modifyIntToString(quantity, false)
+                        onValueChange(FieldType.QUANTITY, newQuantity)
+                    },
                     idIcon = R.drawable.ic_remove,
                     enabled = enabledButtonMinus
                 )
 
                 RoundButtonScreen(
-                    onClick = { quantity = modifyIntToString(quantity, true) },
+                    onClick = {
+                        val newQuantity = modifyIntToString(quantity, true)
+                        onValueChange(FieldType.QUANTITY, newQuantity)
+                    },
                     idIcon = R.drawable.ic_add,
                     enabled = true
                 )
-
             }
         }
     }
