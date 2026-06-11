@@ -28,4 +28,7 @@ interface ProductDao {
 
     @Query("UPDATE products SET is_purchased = :isPurchased WHERE id = :id")
     suspend fun updatePurchasedStatus(id: Long, isPurchased: Boolean)
+
+    @Query("SELECT * FROM products WHERE id = :id")
+    suspend fun getProductById(id: Long): ProductEntity?
 }

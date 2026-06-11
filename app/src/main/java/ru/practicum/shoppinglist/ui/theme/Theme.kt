@@ -17,8 +17,10 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = SchemesOnSurface,
     tertiary = NoActiveElement,
     tertiaryFixed = MediumDarkText,
-    tertiaryContainer = ColorDarkCoContainer
-
+    tertiaryContainer = ColorDarkCoContainer,
+    surfaceTint = CheckBoxNoActiveDark,
+    inverseSurface = BottomSheetColorDark,
+    inverseOnSurface = MenuTextColorDark
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -32,7 +34,10 @@ private val LightColorScheme = lightColorScheme(
     onSurface = SchemesOnSurface,
     tertiary = NoActiveElement,
     tertiaryFixed = MediumLightText,
-    tertiaryContainer = ColorLightCoContainer
+    tertiaryContainer = ColorLightCoContainer,
+    surfaceTint = RegularElementLight,
+    inverseSurface = BottomSheetColor,
+    inverseOnSurface = MenuTextColoLight
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
