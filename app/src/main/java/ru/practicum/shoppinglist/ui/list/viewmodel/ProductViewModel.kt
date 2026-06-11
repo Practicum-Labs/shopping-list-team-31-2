@@ -18,7 +18,8 @@ class ProductViewModel @Inject constructor(
     private val productRepository: ProductRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow<ProductsState>(ProductsState.Empty)
+    private val _state =
+        MutableStateFlow<ProductsState>(ProductsState.Content(products = emptyList()))
     val state: StateFlow<ProductsState> = _state.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<UiEffect>()
@@ -33,7 +34,6 @@ class ProductViewModel @Inject constructor(
         handleIntents()
     }
 
-
     fun sendIntent(intent: ProductIntent) {
         viewModelScope.launch { intents.emit(intent) }
     }
@@ -46,9 +46,12 @@ class ProductViewModel @Inject constructor(
                     is ProductIntent.AddProduct -> addProduct(intent.product)
                     is ProductIntent.UpdateProduct -> updateProduct(intent.product)
                     is ProductIntent.DeleteProduct -> deleteProduct(intent.productId)
-                    is ProductIntent.ShowAddProductBottomSheet -> showBottomSheet()
+                    is ProductIntent.ShowBottomSheet -> showBottomSheet()
                     is ProductIntent.HideBottomSheet -> hideBottomSheet()
-                    is ProductIntent.OnInputValueChanged -> updateNewProductField(intent.fieldType, intent.value)
+                    is ProductIntent.OnInputValueChanged -> updateNewProductField(
+                        intent.fieldType,
+                        intent.value
+                    )
                     is ProductIntent.SaveNewProduct -> saveNewProduct()
                 }
             }
@@ -58,10 +61,8 @@ class ProductViewModel @Inject constructor(
     private fun getProducts() {
         viewModelScope.launch {
             productRepository.getProductsInShoppingList(shoppingListId).collect { products ->
-                _state.value = if (products.isNotEmpty()) {
-                    ProductsState.Content(products = products)
-                } else {
-                    ProductsState.Empty
+                (_state.value as ProductsState.Content).let { currentState ->
+                    _state.value = currentState.copy(products = products)
                 }
             }
         }
@@ -106,16 +107,13 @@ class ProductViewModel @Inject constructor(
         }
     }
 
-
     private fun showBottomSheet() {
-        (_state.value as? ProductsState.Content)?.let { contentState ->
-            // При открытии BottomSheet устанавливает пустые данные, если их нет
-            val data = contentState.newProductData ?: NewProductData("", "", "")
-            _state.value = contentState.copy(
-                newProductData = data,
-                isBottomSheetVisible = true
-            )
-        }
+        val current = _state.value as ProductsState.Content // Теперь можно приводить сразу
+        val initialData = NewProductData("", "", "")
+        _state.value = current.copy(
+            newProductData = initialData,
+            isBottomSheetVisible = true
+        )
     }
 
     private fun hideBottomSheet() {
@@ -132,7 +130,6 @@ class ProductViewModel @Inject constructor(
             val data = contentState.newProductData ?: NewProductData("", "", "")
 
             // Здесь можно добавить проверку данных перед сохранением
-
             if (data.name.isNotBlank() && data.quantity.isNotBlank()) {
                 val newProduct = Product(
                     id = 0,

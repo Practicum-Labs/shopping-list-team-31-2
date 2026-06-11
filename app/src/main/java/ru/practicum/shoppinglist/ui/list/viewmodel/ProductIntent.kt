@@ -8,7 +8,7 @@ sealed class ProductIntent {
     data class AddProduct(val product: Product) : ProductIntent()
     data class UpdateProduct(val product: Product) : ProductIntent()
     data class DeleteProduct(val productId: Long) : ProductIntent()
-    data object ShowAddProductBottomSheet : ProductIntent()
+    data object ShowBottomSheet : ProductIntent()
     data object HideBottomSheet : ProductIntent()
     data class OnInputValueChanged(val fieldType: FieldType, val value: String) : ProductIntent()
 }

@@ -7,11 +7,8 @@ import ru.practicum.shoppinglist.domain.model.Product
 sealed interface ProductsState {
     @Immutable
     data class Content(
-        val products: List<Product>,
+        val products: List<Product> = emptyList(),
         val newProductData: NewProductData? = null,
         val isBottomSheetVisible: Boolean = false
     ) : ProductsState
-
-    @Immutable
-    data object Empty : ProductsState
 }
