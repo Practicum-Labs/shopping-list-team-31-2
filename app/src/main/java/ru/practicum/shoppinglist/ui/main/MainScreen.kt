@@ -40,6 +40,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.domain.model.ShoppingList
+import ru.practicum.shoppinglist.ui.main.search.EmptySearchResult
+import ru.practicum.shoppinglist.ui.main.search.SearchOverlay
+import ru.practicum.shoppinglist.ui.main.search.SearchResultsContent
 import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListIntent
 import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListState
 import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListViewModel
@@ -52,13 +55,10 @@ import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 @Preview
 @Composable
 fun MainScreen(
-    onList: () -> Unit = {},
-    onBack: () -> Unit = {},
+    onListClick: (Long) -> Unit = {},
     onTheme: () -> Unit = {},
     viewModel: ShoppingListViewModel = hiltViewModel()
 ) {
-    var onSearch by remember { mutableStateOf(false) }
-    var searchText by remember { mutableStateOf("") }
     var onDelete by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var showBottomSheet by remember { mutableStateOf(false) }
@@ -79,7 +79,12 @@ fun MainScreen(
     val handleIconSelection: (Int) -> Unit = { selectedIcon ->
         val idToUpdate = if (selectedCardIndex != -1L) selectedCardIndex else state.addedId
         if (idToUpdate != 0L) {
-            viewModel.processIntent(ShoppingListIntent.UpdateListIcon(id = idToUpdate, iconResId = selectedIcon))
+            viewModel.processIntent(
+                ShoppingListIntent.UpdateListIcon(
+                    id = idToUpdate,
+                    iconResId = selectedIcon
+                )
+            )
             showBottomSheet = false
             selectedCardIndex = -1
             viewModel.processIntent(ShoppingListIntent.ClearNewListState)
@@ -92,29 +97,28 @@ fun MainScreen(
         Box(modifier = Modifier.fillMaxSize()) {
             MainScreenContent(
                 state = state,
+                viewModel = viewModel,
                 onTheme = onTheme,
-                onSearchClick = { onSearch = true },
                 onDeleteClick = { onDelete = true },
                 onIconClick = { id ->
                     showBottomSheet = true
                     selectedCardIndex = id
-                }
+                },
+                onListClick = onListClick
             )
 
-            MainScreenFab(
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(end = 16.dp, bottom = 56.dp),
-                onClick = { showDialog = true }
-            )
+            if (!state.isSearchActive) {
+                MainScreenFab(
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = 16.dp, bottom = 56.dp),
+                    onClick = { showDialog = true }
+                )
+            }
 
             MainScreenDialogs(
                 state = state,
                 viewModel = viewModel,
-                onSearch = onSearch,
-                searchText = searchText,
-                onSearchTextChange = { searchText = it },
-                onBack = onBack,
                 onDelete = onDelete,
                 onDeleteConfirm = { viewModel.processIntent(ShoppingListIntent.Delete) },
                 onDeleteDismiss = { onDelete = false },
@@ -133,6 +137,7 @@ fun MainScreen(
                 },
                 onIconSelected = handleIconSelection
             )
+
         }
     }
 }
@@ -140,32 +145,111 @@ fun MainScreen(
 @Composable
 private fun MainScreenContent(
     state: ShoppingListState,
+    viewModel: ShoppingListViewModel,
     onTheme: () -> Unit,
-    onSearchClick: () -> Unit,
     onDeleteClick: () -> Unit,
-    onIconClick: (Long) -> Unit
+    onIconClick: (Long) -> Unit,
+    onListClick: (Long) -> Unit
 ) {
+    val backgroundColor = if (state.isSearchActive) {
+        MaterialTheme.colorScheme.onPrimary
+    } else {
+        MaterialTheme.colorScheme.primary
+    }
+
     Column(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .background(MaterialTheme.colorScheme.primary)
-    ) {
-        AppBarTop(
-            title = stringResource(R.string.main_lists),
-            search = ActionSearch(isView = true, onClick = onSearchClick),
-            delete = ActionDelete(isView = true, onClick = onDeleteClick),
-            theme = ActionTheme(isView = true, onClick = onTheme),
-        )
+            .background(backgroundColor)
 
-        if (state.shoppingLists.isEmpty()) {
-            EmptyListsScreen()
-        } else {
-            ShoppingListsContent(
-                modifier = Modifier.weight(1f),
-                lists = state.shoppingLists,
-                onIconClick = onIconClick
+    ) {
+        if (state.isSearchActive) {
+            SearchOverlay(
+                searchText = state.searchQuery,
+                onSearchTextChange = { query ->
+                    viewModel.processIntent(ShoppingListIntent.UpdateSearchQuery(query))
+                },
+                onCloseSearch = {
+                    viewModel.processIntent(ShoppingListIntent.SetSearchActive(false))
+                }
             )
+        } else {
+            AppBarTop(
+                title = stringResource(R.string.main_lists),
+                search = ActionSearch(isView = true, onClick = {
+                    viewModel.processIntent(ShoppingListIntent.SetSearchActive(true))
+                }),
+                delete = ActionDelete(isView = true, onClick = onDeleteClick),
+                theme = ActionTheme(isView = true, onClick = onTheme),
+            )
+        }
+
+        when {
+            state.isSearchActive && state.searchQuery.isNotBlank() -> {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(1.dp)
+                        .background(Color.Black.copy(alpha = 0.1f))
+                )
+
+                when {
+                    state.displayLists.isEmpty() -> {
+                        EmptySearchResult()
+                    }
+
+                    else -> {
+                        SearchResultsContent(
+                            lists = state.displayLists,
+                            onIconClick = onIconClick,
+                            onListClick = onListClick
+                        )
+                    }
+                }
+            }
+
+            state.isSearchActive && state.searchQuery.isBlank() -> {
+                Box(modifier = Modifier.fillMaxSize()) {
+                    when {
+                        state.shoppingLists.isNotEmpty() -> {
+                            ShoppingListsContent(
+                                modifier = Modifier.fillMaxSize(),
+                                lists = state.shoppingLists,
+                                onIconClick = onIconClick,
+                                onListClick = onListClick
+                            )
+                        }
+
+                        else -> {
+                            EmptyListsScreen()
+                        }
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.5f))
+                    )
+                }
+            }
+
+            else -> {
+                when {
+                    state.shoppingLists.isNotEmpty() -> {
+                        ShoppingListsContent(
+                            modifier = Modifier.weight(1f),
+                            lists = state.shoppingLists,
+                            onIconClick = onIconClick,
+                            onListClick = onListClick
+                        )
+                    }
+
+                    else -> {
+                        EmptyListsScreen()
+                    }
+                }
+            }
         }
     }
 }
@@ -202,7 +286,9 @@ private fun EmptyListsScreen() {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Image(
-            modifier = Modifier.fillMaxWidth().height(300.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(300.dp),
             painter = painterResource(R.drawable.ic_shopping_lists),
             contentDescription = null
         )
@@ -259,7 +345,8 @@ private fun HandleMainScreenEffects(
 private fun ShoppingListsContent(
     modifier: Modifier = Modifier,
     lists: List<ShoppingList>,
-    onIconClick: (Long) -> Unit
+    onIconClick: (Long) -> Unit,
+    onListClick: (Long) -> Unit
 ) {
     LazyColumn(
         modifier = modifier
@@ -272,7 +359,8 @@ private fun ShoppingListsContent(
                 onIconClick = { onIconClick(item.id) },
                 onEdit = { },
                 onCopy = { },
-                onDelete = { }
+                onDelete = { },
+                onCardClick = { onListClick(item.id) }
             )
         }
     }
@@ -282,10 +370,6 @@ private fun ShoppingListsContent(
 private fun MainScreenDialogs(
     state: ShoppingListState,
     viewModel: ShoppingListViewModel,
-    onSearch: Boolean,
-    searchText: String,
-    onSearchTextChange: (String) -> Unit,
-    onBack: () -> Unit,
     onDelete: Boolean,
     onDeleteConfirm: () -> Unit,
     onDeleteDismiss: () -> Unit,
@@ -296,14 +380,6 @@ private fun MainScreenDialogs(
     onBottomSheetDismiss: () -> Unit,
     onIconSelected: (Int) -> Unit
 ) {
-    if (onSearch) {
-        SearchOverlay(
-            searchText = searchText,
-            onSearchTextChange = onSearchTextChange,
-            onBack = onBack
-        )
-    }
-
     if (onDelete) {
         DeleteDialog(
             title = stringResource(R.string.delete_all_lists),
