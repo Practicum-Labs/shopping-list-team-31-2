@@ -8,7 +8,7 @@ import androidx.navigation.compose.composable
 import ru.practicum.shoppinglist.ui.list.ListScreen
 import ru.practicum.shoppinglist.ui.main.MainScreen
 import ru.practicum.shoppinglist.ui.onboard.OnboardScreen
-import ru.practicum.shoppinglist.ui.registration.LoginScreen
+import ru.practicum.shoppinglist.ui.authorization.LoginScreen
 import ru.practicum.shoppinglist.ui.registration.SignUpScreen
 
 @Composable
