@@ -57,4 +57,9 @@
         <item>г</item>
     </string-array>
 
+    <string name="error_empty_text">Поле не может быть пустым</string>
+    <string name="error_duplicate_name">Список с таким названием уже существует</string>
+    <string name="icon_not_update">Не удалось обновить иконку</string>
+    <string name="no_search_results">Ничего не найдено</string>
+
 </resources>
