@@ -31,4 +31,12 @@ class ShoppingListRepositoryImpl @Inject constructor(
     override suspend fun delete() {
         return dao.delete()
     }
+
+    override suspend fun renameList(id: Long, newName: String) {
+        dao.renameList(id, newName)
+    }
+
+    override suspend fun deleteListById(id: Long) {
+        dao.deleteListById(id)
+    }
 }

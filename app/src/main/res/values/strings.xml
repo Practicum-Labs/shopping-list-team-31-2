@@ -62,4 +62,11 @@
     <string name="icon_not_update">Не удалось обновить иконку</string>
     <string name="no_search_results">Ничего не найдено</string>
 
+    <string name="list_renamed">Список переименован в "%s"</string>
+    <string name="list_deleted">Список удален</string>
+    <string name="list_copied">Список скопирован</string>
+    <string name="error_rename">Ошибка переименования</string>
+    <string name="error_delete">Ошибка удаления</string>
+    <string name="error_copy">Ошибка копирования</string>
+
 </resources>
