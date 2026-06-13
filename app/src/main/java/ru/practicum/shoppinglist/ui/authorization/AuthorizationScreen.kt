@@ -1,7 +1,7 @@
 package ru.practicum.shoppinglist.ui.authorization
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -10,9 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -24,79 +21,74 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Preview(showSystemUi = true)
 @Composable
-fun LoginScreen(
-    onSignUp: () -> Unit = {},
-    onMain: () -> Unit = {},
+fun AuthorizationScreen(
+    registration: () -> Unit = {},
+    recoverPassword: () -> Unit = {},
+    login: () -> Unit = {}
     ) {
     var value by remember { mutableStateOf("") }
+    var errorMessage by remember { mutableStateOf("ERROR!") }
     ShoppingListTheme {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.primary)
-                .padding(horizontal = 20.dp),
-            verticalArrangement = Arrangement.Center,
+                .padding(horizontal = 20.dp)
+                .padding(top = 150.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Text(
-                text = "Добро пожаловать!",
-                color = Color.Black,
+                text = stringResource(R.string.hello),
+                color = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.padding(bottom = 50.dp),
                 style = MaterialTheme.typography.headlineSmall
             )
 
             AuthField(
-                label = "E-mail",
+                label = stringResource(R.string.email),
                 value = value,
                 onValueChange = { value = it },
-                placeholder = "Введите e-mail"
+                placeholder = stringResource(R.string.enter_email)
             )
             Spacer(modifier = Modifier.height(16.dp))
             AuthField(
-                label = "Пароль",
+                label = stringResource(R.string.password),
                 value = value,
                 onValueChange = { value = it },
-                placeholder = "Введите пароль"
+                placeholder = stringResource(R.string.enter_password)
             )
-            Spacer(modifier = Modifier.height(40.dp))
-            ShoppingListsButton()
+            ErrorMessage(isError = true, errorMessage = errorMessage)
+            ShoppingListsButton(
+                buttonName = stringResource(R.string.login),
+                onClick = login
+            )
             Spacer(modifier = Modifier.height(40.dp))
             Row() {
                 Text(
-                    text = "Восстановить пароль", color = MaterialTheme.colorScheme.secondary
+                    text = stringResource(R.string.recover_password),
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.clickable(
+                        onClick = recoverPassword
+                    )
                 )
-                Spacer(modifier = Modifier.width(40.dp))
+                Spacer(modifier = Modifier.width(10.dp))
                 Text(
-                    text = "Регистрация", color = MaterialTheme.colorScheme.secondary
+                    text = stringResource(R.string.register),
+                    color = MaterialTheme.colorScheme.secondary,
+                    modifier = Modifier.clickable(
+                        onClick = registration
+                    )
                 )
             }
         }
-    }
-}
-
-@Composable
-fun ShoppingListsButton(
-    onClick: () -> Unit = {}
-) {
-    ElevatedButton(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp)
-            .padding(horizontal = 40.dp),
-        shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.onPrimary),
-    ) {
-        Text(
-            text = "Войти", color = Color.Black, modifier = Modifier
-        )
     }
 }
 

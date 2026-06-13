@@ -1,9 +1,20 @@
 <resources>
     <string name="app_name">Shopping List</string>
     <string name="shopping_list">Cписок покупок</string>
-    <string name="loginScreen">Экран Входа</string>
-    <string name="register">Зарегистрироватся</string>
-    <string name="lodin">Войти</string>
+
+    <string name="hello">Добро пожаловать!</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="login">Войти</string>
+    <string name="email">E-mail</string>
+    <string name="enter_email">Введите e-mail</string>
+    <string name="password">Пароль</string>
+    <string name="enter_password">Введите пароль</string>
+    <string name="one_more_password">Еще раз пароль</string>
+    <string name="enter_one_more_password">Введите пароль еще раз</string>
+    <string name="recover_password">Восстановить пароль</string>
+    <string name="registration">Регистрация</string>
+    <string name="recovering_password">Восстановление пароля</string>
+    <string name="send_email_for_recover">Отправить письмо для восстановления пароля</string>
 
     <string name="welcome_shopping_list">Добро пожаловать в Список покупок!</string>
     <string name="welcome_description">Создавайте списки, добавляйте товары, отмечайте, что уже куплено</string>
