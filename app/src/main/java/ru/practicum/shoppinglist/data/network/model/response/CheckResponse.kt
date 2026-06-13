@@ -4,5 +4,6 @@ import com.google.gson.annotations.SerializedName
 
 data class CheckResponse(
     @SerializedName("is_valid")
-    val isValid: Boolean
+    val isValid: Boolean,
+    val success: Boolean
 )
