@@ -8,8 +8,9 @@ import androidx.navigation.compose.composable
 import ru.practicum.shoppinglist.ui.list.ListScreen
 import ru.practicum.shoppinglist.ui.main.MainScreen
 import ru.practicum.shoppinglist.ui.onboard.OnboardScreen
-import ru.practicum.shoppinglist.ui.registration.LoginScreen
-import ru.practicum.shoppinglist.ui.registration.SignUpScreen
+import ru.practicum.shoppinglist.ui.authorization.AuthorizationScreen
+import ru.practicum.shoppinglist.ui.recoverpassword.RecoverPassword
+import ru.practicum.shoppinglist.ui.registration.RegistrationScreen
 
 @Composable
 fun NavigationGraph(
@@ -25,16 +26,23 @@ fun NavigationGraph(
             OnboardScreen(navController = navController)
         }
 
-        composable(Routes.LOGIN) {
-            LoginScreen(
-                onMain = { navController.navigate(Routes.MAIN) },
-                onSignUp = { navController.navigate(Routes.SIGN_UP) }
+        composable(Routes.AUTHORIZATION) {
+            AuthorizationScreen(
+                login = { navController.navigate(Routes.MAIN) },
+                registration = { navController.navigate(Routes.REGISTRATION) },
+                recoverPassword = {navController.navigate(Routes.RECOVER_PASSWORD)}
             )
         }
 
-        composable(Routes.SIGN_UP) {
-            SignUpScreen(
-                onLogin = { navController.navigate(Routes.LOGIN) }
+        composable(Routes.REGISTRATION) {
+            RegistrationScreen(
+                backToAuth = { navController.navigate(Routes.AUTHORIZATION) }
+            )
+        }
+
+        composable(Routes.RECOVER_PASSWORD) {
+            RecoverPassword(
+                backToAuth = { navController.navigate(Routes.AUTHORIZATION) }
             )
         }
 
