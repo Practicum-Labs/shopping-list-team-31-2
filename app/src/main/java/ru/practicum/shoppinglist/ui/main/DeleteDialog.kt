@@ -14,6 +14,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
@@ -38,7 +39,8 @@ fun DeleteDialog(
                 Text(
                     text = title,
                     color = MaterialTheme.colorScheme.onBackground,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = MaterialTheme.typography.headlineSmall,
+                    textAlign = TextAlign.Center
                 )
             },
             confirmButton = {

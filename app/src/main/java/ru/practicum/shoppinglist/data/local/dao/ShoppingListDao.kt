@@ -24,4 +24,8 @@ interface ShoppingListDao {
 
     @Query("DELETE FROM shopping_lists")
     suspend fun delete()
+
+    @Query("UPDATE shopping_lists SET name = :newName WHERE id = :id")
+    suspend fun renameList(id: Long, newName: String)
+
 }

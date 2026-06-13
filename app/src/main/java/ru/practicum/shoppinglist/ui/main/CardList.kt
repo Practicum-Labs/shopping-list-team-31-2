@@ -47,6 +47,7 @@ import kotlin.math.roundToInt
 
 @Composable
 fun CardList(
+    listId: Long,
     iconCard: Int,
     textCard: String,
     onIconClick: () -> Unit,
@@ -246,6 +247,7 @@ private fun ActionButton(icon: Int, description: String, onClick: () -> Unit) {
 private fun PreviewCardListRecipes() {
     ShoppingListTheme {
         CardList(
+            listId = 0,
             iconCard = R.drawable.ic_set_cake,
             textCard = "Мой список",
             onIconClick = {},
