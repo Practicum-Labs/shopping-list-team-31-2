@@ -4,7 +4,8 @@ object Routes {
 
     const val ONBOARD = "onboard"
     const val MAIN = "main"
-    const val LOGIN = "login"
-    const val SIGN_UP = "sign_up"
+    const val AUTHORIZATION = "authorization"
+    const val REGISTRATION = "registration"
+    const val RECOVER_PASSWORD = "recover_password"
     const val LIST = "list"
 }

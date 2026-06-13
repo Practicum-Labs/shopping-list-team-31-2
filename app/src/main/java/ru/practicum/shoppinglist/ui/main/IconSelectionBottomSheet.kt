@@ -136,7 +136,7 @@ private fun PreviewIconSelectionItem() {
             contentAlignment = Alignment.Center
         ) {
             IconSelectionItem(
-                iconRes = R.drawable.ic_set_basket,
+                iconRes = R.drawable.ic_list_alt,
                 onSelect = {}
             )
         }

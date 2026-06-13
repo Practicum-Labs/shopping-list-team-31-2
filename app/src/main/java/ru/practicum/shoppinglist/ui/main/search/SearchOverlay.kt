@@ -1,12 +1,11 @@
-package ru.practicum.shoppinglist.ui.main
+package ru.practicum.shoppinglist.ui.main.search
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -32,26 +31,21 @@ import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 fun SearchOverlay(
     searchText: String,
     onSearchTextChange: (String) -> Unit,
-    onBack: () -> Unit,
+    onCloseSearch: () -> Unit,
 ) {
     ShoppingListTheme {
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .background(Color.Black.copy(alpha = 0.5f))
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
             Surface(
                 color = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(73.dp)
+
             ) {
                 OutlinedTextField(
                     value = searchText,
                     onValueChange = onSearchTextChange,
                     leadingIcon = {
-                        IconButton(onClick = onBack) {
+                        IconButton(onClick = onCloseSearch) {
                             Icon(
                                 painter = painterResource(R.drawable.ic_arrow_back),
                                 contentDescription = null,
@@ -86,7 +80,16 @@ fun SearchOverlay(
                     )
                 )
             }
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(1.dp)
+                    .background(Color.Black.copy(alpha = 0.1f))
+            )
+
         }
+
     }
 }
 
@@ -100,7 +103,8 @@ private fun PreviewSearchEmptyInput() {
         SearchOverlay(
             searchText = searchText,
             onSearchTextChange = { searchText = it },
-            onBack = {},
+            onCloseSearch = {},
+
         )
     }
 }
