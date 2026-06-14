@@ -10,6 +10,8 @@ import retrofit2.HttpException
 import ru.practicum.shoppinglist.data.network.api.AuthApiService
 import ru.practicum.shoppinglist.data.network.api.NetworkClient
 import ru.practicum.shoppinglist.data.network.model.NetworkResponse
+import ru.practicum.shoppinglist.data.network.model.request.LoginRequest
+import ru.practicum.shoppinglist.data.network.model.request.RefreshTokenRequest
 
 class NetworkClientImpl (
     private val authApi: AuthApiService,
@@ -51,27 +53,29 @@ class NetworkClientImpl (
     override suspend fun doRequestLogin(
         email: String,
         password: String
-    ): NetworkClient {
-        TODO("Not yet implemented")
+    ): NetworkResponse {
+        val request = LoginRequest(email, password)
+        return apiCall { authApi.login(request) }
     }
 
     override suspend fun doRequestRegistration(
         email: String,
         password: String
-    ): NetworkClient {
-        TODO("Not yet implemented")
+    ): NetworkResponse {
+        val request = LoginRequest(email, password)
+        return apiCall { authApi.register(request) }
     }
 
-    override suspend fun doRequestRecovery(email: String): NetworkClient {
-        TODO("Not yet implemented")
+    override suspend fun doRequestRecovery(email: String): NetworkResponse {
+        return apiCall { authApi.recovery(email) }
     }
 
-    override suspend fun doRequestRefresh(refreshToken: String): NetworkClient {
-        TODO("Not yet implemented")
+    override suspend fun doRequestRefresh(refreshToken: String): NetworkResponse {
+        val request = RefreshTokenRequest(refreshToken)
+        return apiCall { authApi.refreshToken(request) }
     }
 
-    override suspend fun doRequestCheck(accessToken: String): NetworkClient {
-        TODO("Not yet implemented")
+    override suspend fun doRequestCheck(accessToken: String): NetworkResponse {
+        return apiCall { authApi.checkAuth(accessToken) }
     }
-
 }

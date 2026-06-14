@@ -1,23 +1,25 @@
 package ru.practicum.shoppinglist.data.network.api
 
+import ru.practicum.shoppinglist.data.network.model.NetworkResponse
+
 interface NetworkClient {
     suspend fun doRequestLogin(
         email: String, password: String
-    ): NetworkClient
+    ): NetworkResponse
 
     suspend fun doRequestRegistration(
         email: String, password: String
-    ): NetworkClient
+    ): NetworkResponse
 
     suspend fun doRequestRecovery(
         email: String
-    ): NetworkClient
+    ): NetworkResponse
 
     suspend fun doRequestRefresh(
         refreshToken: String
-    ): NetworkClient
+    ): NetworkResponse
 
     suspend fun doRequestCheck(
         accessToken: String
-    ): NetworkClient
+    ): NetworkResponse
 }
