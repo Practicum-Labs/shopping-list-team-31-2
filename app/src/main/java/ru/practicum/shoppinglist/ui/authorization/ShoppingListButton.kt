@@ -17,10 +17,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ShoppingListsButton(
     onClick: () -> Unit = {},
-    buttonName: String
+    buttonName: String,
+    enabled: Boolean = false
 ) {
     ElevatedButton(
         onClick = onClick,
+        enabled = enabled,
         modifier = Modifier
             .fillMaxWidth()
             .height(56.dp)

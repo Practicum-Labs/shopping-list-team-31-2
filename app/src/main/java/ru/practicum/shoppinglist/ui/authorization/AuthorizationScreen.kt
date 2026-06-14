@@ -22,6 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
@@ -56,14 +58,16 @@ fun AuthorizationScreen(
                 label = stringResource(R.string.email),
                 value = value,
                 onValueChange = { value = it },
-                placeholder = stringResource(R.string.enter_email)
+                placeholder = stringResource(R.string.enter_email),
+                isPassword = false
             )
             Spacer(modifier = Modifier.height(16.dp))
             AuthField(
                 label = stringResource(R.string.password),
                 value = value,
                 onValueChange = { value = it },
-                placeholder = stringResource(R.string.enter_password)
+                placeholder = stringResource(R.string.enter_password),
+                isPassword = true
             )
             ErrorMessage(isError = true, errorMessage = errorMessage)
             ShoppingListsButton(
@@ -94,15 +98,16 @@ fun AuthorizationScreen(
 
 @Composable
 fun AuthField(
-    label: String, value: String, onValueChange: (String) -> Unit = {}, placeholder: String
+    label: String, value: String?, onValueChange: (String) -> Unit = {}, placeholder: String, isPassword: Boolean
 ) {
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(),
-        value = value,
+        value = value ?: "",
         onValueChange = onValueChange,
         singleLine = true,
         label = { Text(label) },
         placeholder = { Text(placeholder) },
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None,
         colors = OutlinedTextFieldDefaults.colors(
             focusedBorderColor = MaterialTheme.colorScheme.secondary,
             unfocusedBorderColor = MaterialTheme.colorScheme.secondary,

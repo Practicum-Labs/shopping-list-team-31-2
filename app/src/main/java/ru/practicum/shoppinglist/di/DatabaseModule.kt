@@ -9,6 +9,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ru.practicum.shoppinglist.data.local.dao.ProductDao
 import ru.practicum.shoppinglist.data.local.dao.ShoppingListDao
+import ru.practicum.shoppinglist.data.local.dao.UsersDao
 import ru.practicum.shoppinglist.data.local.database.AppDatabase
 import javax.inject.Singleton
 
@@ -38,5 +39,11 @@ object DatabaseModule {
     @Singleton
     fun provideProductDao(database: AppDatabase): ProductDao {
         return database.productDao()
+    }
+
+    @Provides
+    @Singleton
+    fun provideUsersDao(database: AppDatabase): UsersDao {
+        return database.usersDao()
     }
 }

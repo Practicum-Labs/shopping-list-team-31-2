@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.ConnectivityManager
 import android.net.NetworkCapabilities
 import android.util.Log
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
@@ -12,10 +13,11 @@ import ru.practicum.shoppinglist.data.network.api.NetworkClient
 import ru.practicum.shoppinglist.data.network.model.NetworkResponse
 import ru.practicum.shoppinglist.data.network.model.request.LoginRequest
 import ru.practicum.shoppinglist.data.network.model.request.RefreshTokenRequest
+import javax.inject.Inject
 
-class NetworkClientImpl (
+class NetworkClientImpl @Inject constructor (
     private val authApi: AuthApiService,
-    private val context: Context
+    @ApplicationContext private val context: Context
 ) : NetworkClient {
     private fun isConnected(): Boolean {
         val connectivityManager = context.getSystemService(
@@ -51,19 +53,15 @@ class NetworkClientImpl (
     }
 
     override suspend fun doRequestLogin(
-        email: String,
-        password: String
+        user: LoginRequest
     ): NetworkResponse {
-        val request = LoginRequest(email, password)
-        return apiCall { authApi.login(request) }
+        return apiCall { authApi.login(user) }
     }
 
     override suspend fun doRequestRegistration(
-        email: String,
-        password: String
+        user: LoginRequest
     ): NetworkResponse {
-        val request = LoginRequest(email, password)
-        return apiCall { authApi.register(request) }
+        return apiCall { authApi.register(user) }
     }
 
     override suspend fun doRequestRecovery(email: String): NetworkResponse {
