@@ -15,6 +15,12 @@ data class ShoppingListState(
     val dialogState: DialogState = DialogState.Hidden,
     val deleteAllDialogVisible: Boolean = false,
 
+    val isLoading: Boolean = false,
+    val deleteDialogVisible: Boolean = false,
+    val listToDeleteId: Long = 0L,
+    val listToDeleteName: String = "",
+    val renameDialogName: String = "",
+
 ) {
 
     val displayLists: List<ShoppingList>
@@ -31,5 +37,6 @@ data class ShoppingListState(
 sealed class DialogState {
     object Hidden : DialogState()
     data class Create(val name: String = "") : DialogState()
+    data class Rename(val listId: Long, val currentName: String = "") : DialogState()
 
 }

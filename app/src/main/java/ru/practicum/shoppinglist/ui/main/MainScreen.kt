@@ -1,5 +1,6 @@
 package ru.practicum.shoppinglist.ui.main
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
@@ -43,6 +44,8 @@ import ru.practicum.shoppinglist.domain.model.ShoppingList
 import ru.practicum.shoppinglist.ui.main.search.EmptySearchResult
 import ru.practicum.shoppinglist.ui.main.search.SearchOverlay
 import ru.practicum.shoppinglist.ui.main.search.SearchResultsContent
+import ru.practicum.shoppinglist.ui.main.viewmodel.DialogState
+import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListEffect
 import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListIntent
 import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListState
 import ru.practicum.shoppinglist.ui.main.viewmodel.ShoppingListViewModel
@@ -52,6 +55,7 @@ import ru.practicum.shoppinglist.ui.navigation.ActionTheme
 import ru.practicum.shoppinglist.ui.navigation.AppBarTop
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
+@SuppressLint("LocalContextGetResourceValueCall")
 @Preview
 @Composable
 fun MainScreen(
@@ -66,6 +70,28 @@ fun MainScreen(
 
     val state by viewModel.uiState.collectAsState()
     val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.effect.collect { effect ->
+            when (effect) {
+                is ShoppingListEffect.ShowMessage -> {
+                    Toast.makeText(context, context.getString(effect.messageResId), Toast.LENGTH_SHORT).show()
+                }
+
+                is ShoppingListEffect.ShowMessageWithArgs -> {
+                    val message = context.getString(effect.messageResId, *effect.args)
+                    Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+                }
+
+                is ShoppingListEffect.ShowError -> {
+                    Toast.makeText(context, context.getString(effect.messageResId), Toast.LENGTH_SHORT).show()
+                }
+                is ShoppingListEffect.ShowErrorText -> {
+                    Toast.makeText(context, effect.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
 
     HandleMainScreenEffects(
         state = state,
@@ -386,7 +412,8 @@ private fun ShoppingListsContent(
     modifier: Modifier = Modifier,
     lists: List<ShoppingList>,
     onIconClick: (Long) -> Unit,
-    onListClick: (Long) -> Unit
+    onListClick: (Long) -> Unit,
+    viewModel: ShoppingListViewModel
 ) {
     LazyColumn(
         modifier = modifier
@@ -394,12 +421,13 @@ private fun ShoppingListsContent(
     ) {
         items(items = lists, key = { it.id }) { item ->
             CardList(
+                listId = item.id,
                 iconCard = item.icon,
                 textCard = item.name,
                 onIconClick = { onIconClick(item.id) },
-                onEdit = { },
-                onCopy = { },
-                onDelete = { },
+                onEdit = { viewModel.processIntent(ShoppingListIntent.ShowRenameDialog(item.id, item.name)) },
+                onCopy = { viewModel.processIntent(ShoppingListIntent.CopyList(item.id, item.name)) },
+                onDelete = { viewModel.processIntent(ShoppingListIntent.ShowDeleteListDialog(item.id, item.name)) },
                 onCardClick = { onListClick(item.id) }
             )
         }
@@ -450,4 +478,38 @@ private fun MainScreenDialogs(
             onDismiss = onBottomSheetDismiss
         )
     }
+
+    if (state.deleteDialogVisible) {
+        DeleteDialog(
+            title = "Удалить список \"${state.listToDeleteName}\"?",
+            onConfirm = {
+                viewModel.processIntent(ShoppingListIntent.DeleteList(state.listToDeleteId))
+            },
+            onDismiss = {
+                viewModel.processIntent(ShoppingListIntent.HideDeleteListDialog)
+            }
+        )
+    }
+
+    if (state.dialogState is DialogState.Rename) {
+        AddListDialog(
+            listName = state.dialogState.currentName,
+            onListNameChange = { newName ->
+                viewModel.processIntent(ShoppingListIntent.UpdateDialogName(newName))
+            },
+            onDismiss = {
+                viewModel.processIntent(ShoppingListIntent.HideDialog)
+            },
+            onConfirm = {
+                viewModel.processIntent(
+                    ShoppingListIntent.RenameList(
+                        state.dialogState.listId,
+                        state.dialogState.currentName
+                    )
+                )
+            },
+            isRenameMode = true
+        )
+    }
+
 }

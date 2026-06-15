@@ -4,8 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
@@ -23,6 +26,9 @@ class ShoppingListViewModel @Inject constructor(
 ) : ViewModel() {
     private val _uiState = MutableStateFlow(ShoppingListState())
     val uiState: StateFlow<ShoppingListState> = _uiState.asStateFlow()
+
+    private val _effect = MutableSharedFlow<ShoppingListEffect>()
+    val effect: SharedFlow<ShoppingListEffect> = _effect.asSharedFlow()
 
     init {
         processIntent(ShoppingListIntent.GetAllShoppingList)
@@ -217,7 +223,6 @@ class ShoppingListViewModel @Inject constructor(
                         isSearchActive = false
                     )
                 }
-                // Перезагружаем списки
                 handleGetAllItems()
             } catch (e: IOException) {
                 _uiState.update { it.copy(errorMessage = e.message) }
@@ -238,6 +243,83 @@ class ShoppingListViewModel @Inject constructor(
                 }
             } catch (e: IOException) {
                 _uiState.update { it.copy(errorMessage = e.message) }
+            }
+        }
+    }
+
+    private fun handleRenameList(listId: Long, newName: String) {
+        if (newName.isBlank()) {
+            viewModelScope.launch {
+                _effect.emit(ShoppingListEffect.ShowError(R.string.error_empty_text))
+            }
+            return
+        }
+
+        val isDuplicate = _uiState.value.shoppingLists.any {
+            it.id != listId && it.name.equals(newName, ignoreCase = true)
+        }
+        if (isDuplicate) {
+            viewModelScope.launch {
+                _effect.emit(ShoppingListEffect.ShowError(R.string.error_duplicate_name))
+            }
+            return
+        }
+
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                shoppingListInteractor.renameList(listId, newName)
+                _effect.emit(ShoppingListEffect.ShowMessageWithArgs(R.string.list_renamed, arrayOf(newName)))
+                _uiState.update {
+                    it.copy(
+                        isLoading = false,
+                        dialogState = DialogState.Hidden,
+                        renameDialogName = ""
+                    )
+                }
+                handleGetAllItems() // обновляем список
+            } catch (e: IOException) {
+                _effect.emit(ShoppingListEffect.ShowError(R.string.error_rename))
+                _uiState.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+    private fun handleDeleteList(listId: Long) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true, deleteDialogVisible = false) }
+            try {
+                shoppingListInteractor.deleteListById(listId)
+                _effect.emit(ShoppingListEffect.ShowMessage(R.string.list_deleted))
+                _uiState.update { it.copy(isLoading = false) }
+                handleGetAllItems()
+            } catch (e: IOException) {
+                _effect.emit(ShoppingListEffect.ShowError(R.string.error_delete))
+                _uiState.update { it.copy(isLoading = false) }
+            }
+        }
+    }
+
+    private fun handleCopyList(listId: Long, originalName: String) {
+        viewModelScope.launch {
+            _uiState.update { it.copy(isLoading = true) }
+            try {
+                val newName = "$originalName (Копия)"
+
+                val originalList = _uiState.value.shoppingLists.find { it.id == listId }
+
+                val newList = ShoppingList(
+                    id = 0,
+                    name = newName,
+                    icon = originalList?.icon ?: R.drawable.ic_list_alt
+                )
+                val newId = shoppingListInteractor.createShoppingList(newList)
+                _effect.emit(ShoppingListEffect.ShowMessage(R.string.list_copied))
+                _uiState.update { it.copy(isLoading = false) }
+                handleGetAllItems()
+            } catch (e: IOException) {
+                _effect.emit(ShoppingListEffect.ShowError(R.string.error_copy))
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }

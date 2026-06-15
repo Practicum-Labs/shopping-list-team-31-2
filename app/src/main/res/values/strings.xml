@@ -80,5 +80,11 @@
     <string name="error_registration">Ошибка регистрации</string>
     <string name="error_no_connection">Проверьте подключение к интернету</string>
     <string name="error_conflict">Пользователь с таким email уже зарегистрирован</string>"
+    <string name="list_renamed">Список переименован в "%s"</string>
+    <string name="list_deleted">Список удален</string>
+    <string name="list_copied">Список скопирован</string>
+    <string name="error_rename">Ошибка переименования</string>
+    <string name="error_delete">Ошибка удаления</string>
+    <string name="error_copy">Ошибка копирования</string>
 
 </resources>

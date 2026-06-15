@@ -8,4 +8,7 @@ interface ShoppingListInteractor {
     fun getShoppingLists(): Flow<List<ShoppingList>>
     suspend fun updateListIcon(id: Long, iconResId: Int)
     suspend fun delete()
+
+    suspend fun renameList(id: Long, newName: String)
+    suspend fun deleteListById(id: Long)
 }

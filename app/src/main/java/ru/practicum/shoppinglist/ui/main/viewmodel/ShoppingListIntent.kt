@@ -18,4 +18,10 @@ sealed interface ShoppingListIntent {
     data class UpdateDialogName(val name: String) : ShoppingListIntent
     data object ShowDeleteAllDialog : ShoppingListIntent
     data object HideDeleteAllDialog : ShoppingListIntent
+    data class ShowRenameDialog(val listId: Long, val currentName: String) : ShoppingListIntent
+    data class RenameList(val listId: Long, val newName: String) : ShoppingListIntent
+    data class ShowDeleteListDialog(val listId: Long, val listName: String) : ShoppingListIntent
+    data class DeleteList(val listId: Long) : ShoppingListIntent
+    data class CopyList(val listId: Long, val listName: String) : ShoppingListIntent
+    data object HideDeleteListDialog : ShoppingListIntent
 }

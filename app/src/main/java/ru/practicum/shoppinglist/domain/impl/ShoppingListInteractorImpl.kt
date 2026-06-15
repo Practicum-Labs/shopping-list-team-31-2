@@ -24,4 +24,12 @@ class ShoppingListInteractorImpl @Inject constructor(
     override suspend fun delete() {
         return shoppingListRepository.delete()
     }
+
+    override suspend fun renameList(id: Long, newName: String) {
+        return shoppingListRepository.renameList(id, newName)
+    }
+
+    override suspend fun deleteListById(id: Long) {
+        return shoppingListRepository.deleteListById(id)
+    }
 }
