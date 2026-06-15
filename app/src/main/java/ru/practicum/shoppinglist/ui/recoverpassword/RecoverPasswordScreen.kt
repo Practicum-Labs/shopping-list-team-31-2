@@ -7,30 +7,38 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.authorization.AuthButton
 import ru.practicum.shoppinglist.ui.authorization.AuthField
 import ru.practicum.shoppinglist.ui.authorization.ErrorMessage
 import ru.practicum.shoppinglist.ui.navigation.ActionBack
 import ru.practicum.shoppinglist.ui.navigation.AppBarTop
+import ru.practicum.shoppinglist.ui.recoverpassword.viewmodel.RecoverPasswordIntent
+import ru.practicum.shoppinglist.ui.recoverpassword.viewmodel.RecoverPasswordViewModel
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Preview(showSystemUi = true)
 @Composable
 fun RecoverPassword(
-    backToAuth: () -> Unit = {}
+    backToAuth: () -> Unit = {},
+    viewModel: RecoverPasswordViewModel = hiltViewModel()
 ) {
-    var value by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("Error!") }
+    val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(state.isReadyBackToAuth) {
+        if (state.isReadyBackToAuth) {
+            backToAuth()
+        }
+    }
 
     ShoppingListTheme {
         Column(
@@ -57,13 +65,24 @@ fun RecoverPassword(
 
                 AuthField(
                     label = stringResource(R.string.email),
-                    value = value,
-                    onValueChange = { value = it },
+                    value = state.currentEmail,
+                    onValueChange = { newEmail ->
+                        viewModel.processIntent(RecoverPasswordIntent.SetCurrentEmail(newEmail))
+                    },
                     placeholder = stringResource(R.string.enter_email),
                     isPassword = false
                 )
-                ErrorMessage(isError = true, errorMessage = errorMessage)
-                AuthButton(buttonName = stringResource(R.string.send_email_for_recover))
+                ErrorMessage(
+                    isError = state.errorMessage != null,
+                    errorMessage = state.errorMessage?.let { stringResource(it) }
+                )
+                AuthButton(
+                    buttonName = stringResource(R.string.send_email_for_recover),
+                    enabled = state.isRecoverPasswordActive,
+                    onClick = {
+                        viewModel.processIntent(intent = RecoverPasswordIntent.RecoverPassword)
+                    }
+                )
             }
         }
     }

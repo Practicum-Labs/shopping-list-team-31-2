@@ -25,7 +25,7 @@ interface AuthApiService {
     @POST("auth/recovery")
     suspend fun recovery(
         @Header("email") email: String
-    ): String
+    )
 
     @POST("auth/refresh")
     suspend fun refreshToken(
