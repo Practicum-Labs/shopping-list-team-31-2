@@ -59,7 +59,8 @@ fun RecoverPassword(
                     label = stringResource(R.string.email),
                     value = value,
                     onValueChange = { value = it },
-                    placeholder = stringResource(R.string.enter_email)
+                    placeholder = stringResource(R.string.enter_email),
+                    isPassword = false
                 )
                 ErrorMessage(isError = true, errorMessage = errorMessage)
                 ShoppingListsButton(buttonName = stringResource(R.string.send_email_for_recover))

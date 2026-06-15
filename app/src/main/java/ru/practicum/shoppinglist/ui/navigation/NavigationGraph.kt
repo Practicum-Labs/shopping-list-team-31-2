@@ -37,13 +37,17 @@ fun NavigationGraph(
 
         composable(Routes.REGISTRATION) {
             RegistrationScreen(
-                backToAuth = { navController.navigate(Routes.AUTHORIZATION) }
+                backToAuth = { navController.navigate(Routes.AUTHORIZATION) {
+                    popUpTo(Routes.REGISTRATION) { inclusive = true }
+                } }
             )
         }
 
         composable(Routes.RECOVER_PASSWORD) {
             RecoverPassword(
-                backToAuth = { navController.navigate(Routes.AUTHORIZATION) }
+                backToAuth = { navController.navigate(Routes.AUTHORIZATION) {
+                    popUpTo(Routes.RECOVER_PASSWORD) { inclusive = true }
+                } }
             )
         }
 

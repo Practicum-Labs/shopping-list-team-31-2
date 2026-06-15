@@ -1,5 +1,6 @@
 package ru.practicum.shoppinglist.ui.main.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -38,75 +39,39 @@ class ShoppingListViewModel @Inject constructor(
         when (intent) {
             is ShoppingListIntent.AddShoppingList -> handleAddItem()
             is ShoppingListIntent.GetAllShoppingList -> handleGetAllItems()
-            is ShoppingListIntent.SetAddedName -> _uiState.update {
-                it.copy(
-                    addedName = intent.addedName,
-                    errorMessage = null
-                )
-            }
 
-            is ShoppingListIntent.SetAddedId -> _uiState.update { it.copy(addedId = intent.addedId) }
-            is ShoppingListIntent.SetAddedIcon -> _uiState.update { it.copy(addedIcon = intent.addedIcon) }
+            is ShoppingListIntent.SetAddedName -> updateAddedName(intent)
+            is ShoppingListIntent.SetAddedId -> updateAddedId(intent)
+            is ShoppingListIntent.SetAddedIcon -> updateAddedIcon(intent)
+
             is ShoppingListIntent.Delete -> handleDeleteAllLists()
-            is ShoppingListIntent.ClearErrors -> _uiState.update { it.copy(errorMessage = null) }
-            is ShoppingListIntent.ClearNewListState -> _uiState.update { it.copy(addedId = 0L) }
+            is ShoppingListIntent.ClearErrors -> clearErrors()
+            is ShoppingListIntent.ClearNewListState -> clearNewListState()
+
             is ShoppingListIntent.UpdateListIcon -> handleUpdateIcon(intent.id, intent.iconResId)
 
-            is ShoppingListIntent.UpdateSearchQuery -> {
-                _uiState.update { it.copy(searchQuery = intent.query) }
-                savedStateHandle["search_query"] = intent.query
-            }
+            is ShoppingListIntent.UpdateSearchQuery -> updateSearchQuery(intent)
 
-            is ShoppingListIntent.SetSearchActive -> {
-                _uiState.update {
-                    if (!intent.active) {
-                        it.copy(isSearchActive = false, searchQuery = "")
-                    } else {
-                        it.copy(isSearchActive = true)
-                    }
-                }
-                savedStateHandle["is_search_active"] = intent.active
-            }
+            is ShoppingListIntent.SetSearchActive -> updateSearchState(intent)
 
-            is ShoppingListIntent.ShowCreateDialog -> {
-                _uiState.update { it.copy(dialogState = DialogState.Create(name = "")) }
-                savedStateHandle["dialog_type"] = "create"
-            }
+            is ShoppingListIntent.ShowCreateDialog -> showCreateDialog()
 
-            is ShoppingListIntent.HideDialog -> {
-                _uiState.update { it.copy(dialogState = DialogState.Hidden) }
-                savedStateHandle.remove("dialog_type")
-            }
+            is ShoppingListIntent.HideDialog -> hideDialog()
 
-            is ShoppingListIntent.UpdateDialogName -> {
-                _uiState.update { currentState ->
-                    val newDialogState = when (val dialog = currentState.dialogState) {
-                        is DialogState.Create -> dialog.copy(name = intent.name)
-                        is DialogState.Rename -> dialog.copy(currentName = intent.name)
-                        else -> dialog
-                    }
-                    currentState.copy(dialogState = newDialogState)
-                }
-                savedStateHandle["dialog_name"] = intent.name
-            }
+            is ShoppingListIntent.UpdateDialogName -> updateDialogName(intent)
 
-            is ShoppingListIntent.ShowDeleteAllDialog -> {
-                _uiState.update { it.copy(deleteAllDialogVisible = true) }
-            }
+            is ShoppingListIntent.ShowDeleteAllDialog -> showDeleteDialog()
 
-            is ShoppingListIntent.HideDeleteAllDialog -> {
-                _uiState.update { it.copy(deleteAllDialogVisible = false) }
-            }
+            is ShoppingListIntent.HideDeleteAllDialog -> hideDeleteDialog()
 
             is ShoppingListIntent.ShowRenameDialog -> {
                 _uiState.update {
-                    it.copy(dialogState = DialogState.Rename(
-                        listId = intent.listId,
-                        currentName = intent.currentName
-                    ))
+                    it.copy(dialogState = DialogState.Rename(intent.listId, intent.currentName))
                 }
             }
+
             is ShoppingListIntent.RenameList -> handleRenameList(intent.listId, intent.newName)
+
             is ShoppingListIntent.ShowDeleteListDialog -> {
                 _uiState.update {
                     it.copy(
@@ -116,6 +81,7 @@ class ShoppingListViewModel @Inject constructor(
                     )
                 }
             }
+
             is ShoppingListIntent.DeleteList -> handleDeleteList(intent.listId)
 
             is ShoppingListIntent.CopyList -> handleCopyList(intent.listId, intent.listName)
@@ -123,8 +89,106 @@ class ShoppingListViewModel @Inject constructor(
             is ShoppingListIntent.HideDeleteListDialog -> {
                 _uiState.update { it.copy(deleteDialogVisible = false) }
             }
+        }
+    }
 
-            else -> {}
+    private fun updateSearchState(
+        intent: ShoppingListIntent.SetSearchActive
+    ) {
+        _uiState.update {
+            if (intent.active) {
+                it.copy(isSearchActive = true)
+            } else {
+                it.copy(
+                    isSearchActive = false,
+                    searchQuery = ""
+                )
+            }
+        }
+        savedStateHandle["is_search_active"] = intent.active
+    }
+
+    private fun showCreateDialog() {
+        _uiState.update {
+            it.copy(dialogState = DialogState.Create(""))
+        }
+        savedStateHandle["dialog_type"] = "create"
+    }
+
+    private fun hideDialog() {
+        _uiState.update {
+            it.copy(dialogState = DialogState.Hidden)
+        }
+        savedStateHandle["dialog_type"] = null
+    }
+
+    private fun updateDialogName(
+        intent: ShoppingListIntent.UpdateDialogName
+    ) {
+        _uiState.update { state ->
+
+            val dialog = when (val current = state.dialogState) {
+                is DialogState.Create -> current.copy(name = intent.name)
+                is DialogState.Rename -> current.copy(currentName = intent.name)
+                else -> current
+            }
+
+            state.copy(dialogState = dialog)
+        }
+
+        savedStateHandle["dialog_name"] = intent.name
+    }
+
+    private fun showDeleteDialog() {
+        _uiState.update {
+            it.copy(deleteAllDialogVisible = true)
+        }
+    }
+
+    private fun hideDeleteDialog() {
+        _uiState.update {
+            it.copy(deleteAllDialogVisible = false)
+        }
+    }
+
+    private fun updateSearchQuery(intent: ShoppingListIntent.UpdateSearchQuery) {
+        _uiState.update {
+            it.copy(searchQuery = intent.query)
+        }
+
+        savedStateHandle["search_query"] = intent.query
+    }
+
+    private fun updateAddedName(intent: ShoppingListIntent.SetAddedName) {
+        _uiState.update {
+            it.copy(
+                addedName = intent.addedName,
+                errorMessage = null
+            )
+        }
+    }
+
+    private fun updateAddedId(intent: ShoppingListIntent.SetAddedId) {
+        _uiState.update {
+            it.copy(addedId = intent.addedId)
+        }
+    }
+
+    private fun updateAddedIcon(intent: ShoppingListIntent.SetAddedIcon) {
+        _uiState.update {
+            it.copy(addedIcon = intent.addedIcon)
+        }
+    }
+
+    private fun clearErrors() {
+        _uiState.update {
+            it.copy(errorMessage = null)
+        }
+    }
+
+    private fun clearNewListState() {
+        _uiState.update {
+            it.copy(addedId = 0L)
         }
     }
 
@@ -165,16 +229,13 @@ class ShoppingListViewModel @Inject constructor(
 
     private fun handleGetAllItems() {
         viewModelScope.launch {
-            shoppingListInteractor
-                .getShoppingLists()
-                .catch { e ->
-                    _uiState.update {
-                        it.copy(errorMessage = e.message)
-                    }
+            shoppingListInteractor.getShoppingLists().catch { e ->
+                _uiState.update {
+                    it.copy(errorMessage = e.message)
                 }
-                .collect { items ->
-                    _uiState.update { it.copy(shoppingLists = items) }
-                }
+            }.collect { items ->
+                _uiState.update { it.copy(shoppingLists = items) }
+            }
         }
     }
 
@@ -243,10 +304,11 @@ class ShoppingListViewModel @Inject constructor(
                         renameDialogName = ""
                     )
                 }
-                handleGetAllItems() // обновляем список
+                handleGetAllItems()
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_rename))
                 _uiState.update { it.copy(isLoading = false) }
+                Log.e(LOG_TAG, LOG_MESSAGE + e)
             }
         }
     }
@@ -262,6 +324,8 @@ class ShoppingListViewModel @Inject constructor(
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_delete))
                 _uiState.update { it.copy(isLoading = false) }
+                Log.e(LOG_TAG, LOG_MESSAGE + e)
+
             }
         }
     }
@@ -279,14 +343,20 @@ class ShoppingListViewModel @Inject constructor(
                     name = newName,
                     icon = originalList?.icon ?: R.drawable.ic_list_alt
                 )
-                val newId = shoppingListInteractor.createShoppingList(newList)
+                shoppingListInteractor.createShoppingList(newList)
                 _effect.emit(ShoppingListEffect.ShowMessage(R.string.list_copied))
                 _uiState.update { it.copy(isLoading = false) }
                 handleGetAllItems()
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_copy))
                 _uiState.update { it.copy(isLoading = false) }
+                Log.e(LOG_TAG, LOG_MESSAGE + e)
+
             }
         }
+    }
+    companion object {
+        const val LOG_TAG = "ShoppingListViewModel"
+        const val LOG_MESSAGE = "Error deleting list:"
     }
 }

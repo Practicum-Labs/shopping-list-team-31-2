@@ -12,12 +12,12 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun ErrorMessage(
     isError: Boolean,
-    errorMessage: String
+    errorMessage: String?
 ) {
     if (isError) {
         Spacer(modifier = Modifier.height(11.dp))
         Text(
-            text = errorMessage,
+            text = errorMessage ?: "",
             style = MaterialTheme.typography.bodyMedium,
             color = Color.Red
         )
