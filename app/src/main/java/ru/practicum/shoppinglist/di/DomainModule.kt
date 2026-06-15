@@ -27,7 +27,7 @@ interface DomainModule {
     fun bindAuthInteractor(
         impl: AuthInteractorImpl
     ): AuthInteractor
-  
+
     @Binds
     @Singleton
     fun bindProductInteractor(

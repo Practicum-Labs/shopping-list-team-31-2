@@ -73,17 +73,17 @@ fun NavigationGraph(
             )
         }
 
-            composable("${Routes.LIST}/{listId}/{listName}") { backStackEntry ->
-                val listId = backStackEntry.arguments?.getString("listId")?.toLongOrNull() ?: 0L
-                val listName = backStackEntry.arguments?.getString("listName")?.let {
-                    Uri.decode(it)
-                } ?: ""
-                ListScreen(
-                    listId = listId,
-                    listName = listName,
-                    onBack = { navController.popBackStack() }
-                )
-            }
-
+        composable("${Routes.LIST}/{listId}/{listName}") { backStackEntry ->
+            val listId = backStackEntry.arguments?.getString("listId")?.toLongOrNull() ?: 0L
+            val listName = backStackEntry.arguments?.getString("listName")?.let {
+                Uri.decode(it)
+            } ?: ""
+            ListScreen(
+                listId = listId,
+                listName = listName,
+                onBack = { navController.popBackStack() }
+            )
         }
+
     }
+}
