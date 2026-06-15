@@ -22,6 +22,9 @@
     <string name="shopping_no_lists">У вас пока нет списков</string>
     <string name="shopping_no_lists_description">Нажмите на кнопку + ниже, чтобы создать свой первый список</string>
 
+    <string name="lists_are_empty">В списке покупок пока пусто</string>
+    <string name="lists_are_empty_description">Нажмите на кнопку + ниже,\n чтобы добавить товары</string>
+
     <string name="search_no_result">Мы не смогли найти то, что вы искали</string>
     <string name="search_no_result_description">Попробуйте изменить запрос или проверить написание</string>
 
@@ -36,6 +39,7 @@
     <string name="delete_all">Удалить все</string>
     <string name="delete_all_purchased">Удалить все купленные товары?</string>
     <string name="delete_all_lists">Удалить все списки?</string>
+    <string name="delete_all_products">Удалить все товары?</string>
 
     <string name="sort">Сортировка</string>
     <string name="sort_alpha">По алфавиту</string>
@@ -49,6 +53,8 @@
     <string name="product">Товар</string>
     <string name="quantity">Количество</string>
     <string name="units">Единицы</string>
+    <string name="products">Продукты</string>
+    <string name="add_new_product">Добавить новый товар</string>
 
     <string name="liter">л</string>
     <string name="milliliter">мл</string>

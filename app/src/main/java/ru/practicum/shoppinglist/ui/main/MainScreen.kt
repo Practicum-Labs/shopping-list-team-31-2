@@ -59,7 +59,7 @@ import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 @Preview
 @Composable
 fun MainScreen(
-    onListClick: (Long) -> Unit = {},
+    onListClick: (Long, String) -> Unit = { _, _ -> },
     onTheme: () -> Unit = {},
     viewModel: ShoppingListViewModel = hiltViewModel()
 ) {
@@ -175,7 +175,7 @@ private fun MainScreenContent(
     onTheme: () -> Unit,
     onDeleteClick: () -> Unit,
     onIconClick: (Long) -> Unit,
-    onListClick: (Long) -> Unit
+    onListClick: (Long, String) -> Unit
 ) {
     val backgroundColor = if (state.isSearchActive) {
         MaterialTheme.colorScheme.onPrimary
@@ -375,7 +375,7 @@ private fun ShoppingListsContent(
     modifier: Modifier = Modifier,
     lists: List<ShoppingList>,
     onIconClick: (Long) -> Unit,
-    onListClick: (Long) -> Unit,
+    onListClick: (Long, String) -> Unit,
     viewModel: ShoppingListViewModel
 ) {
     LazyColumn(
@@ -391,7 +391,7 @@ private fun ShoppingListsContent(
                 onEdit = { viewModel.processIntent(ShoppingListIntent.ShowRenameDialog(item.id, item.name)) },
                 onCopy = { viewModel.processIntent(ShoppingListIntent.CopyList(item.id, item.name)) },
                 onDelete = { viewModel.processIntent(ShoppingListIntent.ShowDeleteListDialog(item.id, item.name)) },
-                onCardClick = { onListClick(item.id) }
+                onCardClick = { onListClick(item.id, item.name) }
             )
         }
     }

@@ -1,14 +1,15 @@
 package ru.practicum.shoppinglist.ui.navigation
 
+import android.net.Uri
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import ru.practicum.shoppinglist.ui.authorization.AuthorizationScreen
 import ru.practicum.shoppinglist.ui.list.ListScreen
 import ru.practicum.shoppinglist.ui.main.MainScreen
 import ru.practicum.shoppinglist.ui.onboard.OnboardScreen
-import ru.practicum.shoppinglist.ui.authorization.AuthorizationScreen
 import ru.practicum.shoppinglist.ui.recoverpassword.RecoverPassword
 import ru.practicum.shoppinglist.ui.registration.RegistrationScreen
 
@@ -30,7 +31,7 @@ fun NavigationGraph(
             AuthorizationScreen(
                 login = { navController.navigate(Routes.MAIN) },
                 registration = { navController.navigate(Routes.REGISTRATION) },
-                recoverPassword = {navController.navigate(Routes.RECOVER_PASSWORD)}
+                recoverPassword = { navController.navigate(Routes.RECOVER_PASSWORD) }
             )
         }
 
@@ -48,12 +49,22 @@ fun NavigationGraph(
 
         composable(Routes.MAIN) {
             MainScreen(
-                onListClick = { navController.navigate(Routes.LIST) }
+                onListClick = { listId, listName
+                    -> navController.navigate("${Routes.LIST}/$listId/${Uri.encode(listName)}") }
             )
         }
 
-        composable(Routes.LIST) {
-            ListScreen()
+        composable("${Routes.LIST}/{listId}/{listName}") { backStackEntry ->
+            val listId = backStackEntry.arguments?.getString("listId")?.toLongOrNull() ?: 0L
+            val listName = backStackEntry.arguments?.getString("listName")?.let {
+                Uri.decode(it)
+            } ?: ""
+            ListScreen(
+                listId = listId,
+                listName = listName,
+                onBack = { navController.popBackStack() }
+            )
         }
+
     }
 }

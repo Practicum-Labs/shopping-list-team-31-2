@@ -120,7 +120,7 @@ private fun AppTitle(
         modifier = Modifier
             .wrapContentHeight()
             .padding(start = 16.dp)
-            .padding(vertical = 20.dp),
+            .padding(vertical = 18.dp),
         style = MaterialTheme.typography.titleLarge
     )
 }

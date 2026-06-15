@@ -9,7 +9,7 @@ data class ProductEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Long = 0,
     val name: String,
-    val quantity: Double,
+    val quantity: Int,
     val unit: String,
     @ColumnInfo(name = "is_purchased")
     val isPurchased: Boolean,
