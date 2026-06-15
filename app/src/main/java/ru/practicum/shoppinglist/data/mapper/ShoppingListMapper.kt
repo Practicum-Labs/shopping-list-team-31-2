@@ -10,6 +10,7 @@ class ShoppingListMapper @Inject constructor() {
             id = shoppingList.id,
             name = shoppingList.name,
             icon = shoppingList.icon,
+            userId = shoppingList.userId
         )
     }
 
@@ -18,6 +19,7 @@ class ShoppingListMapper @Inject constructor() {
             id = shoppingListEntity.id,
             name = shoppingListEntity.name,
             icon = shoppingListEntity.icon,
+            userId = shoppingListEntity.userId
         )
     }
 

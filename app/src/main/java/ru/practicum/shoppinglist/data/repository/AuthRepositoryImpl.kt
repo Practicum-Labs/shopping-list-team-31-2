@@ -16,6 +16,7 @@ import ru.practicum.shoppinglist.domain.model.RefreshToken
 import ru.practicum.shoppinglist.domain.model.Resource
 import ru.practicum.shoppinglist.domain.model.User
 import ru.practicum.shoppinglist.domain.repository.AuthRepository
+import ru.practicum.shoppinglist.util.Session
 import javax.inject.Inject
 
 class AuthRepositoryImpl @Inject constructor(
@@ -173,7 +174,7 @@ class AuthRepositoryImpl @Inject constructor(
                 val updatedUser = user.copy(
                     refreshToken = mapRefreshToken.refreshToken,
                     accessToken = mapRefreshToken.accessToken,
-                    lastUpdateToken = System.currentTimeMillis()
+                    lastUpdateToken = System.currentTimeMillis() + Session.SESSION_MS
                 )
                 dao.updateUser(mapper.mapUserToEntity(updatedUser))
                 emit(Resource.Success(mapRefreshToken))

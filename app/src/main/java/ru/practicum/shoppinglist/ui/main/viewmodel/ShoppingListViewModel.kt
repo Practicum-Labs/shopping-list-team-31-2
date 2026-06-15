@@ -25,6 +25,8 @@ class ShoppingListViewModel @Inject constructor(
     private val shoppingListInteractor: ShoppingListInteractor,
     private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
+
+    private val userId: Long = savedStateHandle.get<Long>("userId") ?: -1L
     private val _uiState = MutableStateFlow(ShoppingListState())
     val uiState: StateFlow<ShoppingListState> = _uiState.asStateFlow()
 
@@ -38,7 +40,7 @@ class ShoppingListViewModel @Inject constructor(
     fun processIntent(intent: ShoppingListIntent) {
         when (intent) {
             is ShoppingListIntent.AddShoppingList -> handleAddItem()
-            is ShoppingListIntent.GetAllShoppingList -> handleGetAllItems()
+            is ShoppingListIntent.GetAllShoppingList -> handleGetAllItemsByUserId()
 
             is ShoppingListIntent.SetAddedName -> updateAddedName(intent)
             is ShoppingListIntent.SetAddedId -> updateAddedId(intent)
@@ -209,7 +211,8 @@ class ShoppingListViewModel @Inject constructor(
         val shoppingList = ShoppingList(
             id = 0,
             name = name,
-            icon = _uiState.value.addedIcon
+            icon = _uiState.value.addedIcon,
+            userId = userId
         )
         viewModelScope.launch {
             try {
@@ -227,9 +230,9 @@ class ShoppingListViewModel @Inject constructor(
         }
     }
 
-    private fun handleGetAllItems() {
+    private fun handleGetAllItemsByUserId() {
         viewModelScope.launch {
-            shoppingListInteractor.getShoppingLists().catch { e ->
+            shoppingListInteractor.getShoppingListsByUserId(userId = userId).catch { e ->
                 _uiState.update {
                     it.copy(errorMessage = e.message)
                 }
@@ -242,7 +245,7 @@ class ShoppingListViewModel @Inject constructor(
     private fun handleDeleteAllLists() {
         viewModelScope.launch {
             try {
-                shoppingListInteractor.delete()
+                shoppingListInteractor.deleteAllListsByUserId(userId)
                 _uiState.update {
                     it.copy(
                         deleteAllDialogVisible = false,
@@ -250,7 +253,7 @@ class ShoppingListViewModel @Inject constructor(
                         isSearchActive = false
                     )
                 }
-                handleGetAllItems()
+                handleGetAllItemsByUserId()
             } catch (e: IOException) {
                 _uiState.update { it.copy(errorMessage = e.message) }
             }
@@ -304,7 +307,7 @@ class ShoppingListViewModel @Inject constructor(
                         renameDialogName = ""
                     )
                 }
-                handleGetAllItems()
+                handleGetAllItemsByUserId()
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_rename))
                 _uiState.update { it.copy(isLoading = false) }
@@ -320,7 +323,7 @@ class ShoppingListViewModel @Inject constructor(
                 shoppingListInteractor.deleteListById(listId)
                 _effect.emit(ShoppingListEffect.ShowMessage(R.string.list_deleted))
                 _uiState.update { it.copy(isLoading = false) }
-                handleGetAllItems()
+                handleGetAllItemsByUserId()
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_delete))
                 _uiState.update { it.copy(isLoading = false) }
@@ -341,12 +344,13 @@ class ShoppingListViewModel @Inject constructor(
                 val newList = ShoppingList(
                     id = 0,
                     name = newName,
-                    icon = originalList?.icon ?: R.drawable.ic_list_alt
+                    icon = originalList?.icon ?: R.drawable.ic_list_alt,
+                    userId = userId
                 )
                 shoppingListInteractor.createShoppingList(newList)
                 _effect.emit(ShoppingListEffect.ShowMessage(R.string.list_copied))
                 _uiState.update { it.copy(isLoading = false) }
-                handleGetAllItems()
+                handleGetAllItemsByUserId()
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_copy))
                 _uiState.update { it.copy(isLoading = false) }

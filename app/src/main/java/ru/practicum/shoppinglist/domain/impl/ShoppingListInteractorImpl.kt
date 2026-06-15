@@ -13,16 +13,16 @@ class ShoppingListInteractorImpl @Inject constructor(
         return shoppingListRepository.createShoppingList(shoppingList)
     }
 
-    override fun getShoppingLists(): Flow<List<ShoppingList>> {
-        return shoppingListRepository.getShoppingLists()
+    override fun getShoppingListsByUserId(userId: Long): Flow<List<ShoppingList>> {
+        return shoppingListRepository.getShoppingListsByUserId(userId)
     }
 
     override suspend fun updateListIcon(id: Long, iconResId: Int) {
         return shoppingListRepository.updateListIcon(id = id, iconResId = iconResId)
     }
 
-    override suspend fun delete() {
-        return shoppingListRepository.delete()
+    override suspend fun deleteAllListsByUserId(userId: Long) {
+        return shoppingListRepository.deleteAllListsByUserId(userId)
     }
 
     override suspend fun renameList(id: Long, newName: String) {

@@ -7,6 +7,7 @@ import ru.practicum.shoppinglist.data.network.model.response.RefreshTokenRespons
 import ru.practicum.shoppinglist.domain.model.CheckToken
 import ru.practicum.shoppinglist.domain.model.RefreshToken
 import ru.practicum.shoppinglist.domain.model.User
+import ru.practicum.shoppinglist.util.Session
 import javax.inject.Inject
 
 class AuthMapper @Inject constructor() {
@@ -15,7 +16,7 @@ class AuthMapper @Inject constructor() {
             userId = dto.userId,
             accessToken = dto.accessToken,
             refreshToken = dto.refreshToken,
-            lastTokenUpdate = System.currentTimeMillis()
+            lastTokenUpdate = System.currentTimeMillis() + Session.SESSION_MS
         )
     }
 
@@ -50,4 +51,5 @@ class AuthMapper @Inject constructor() {
             lastTokenUpdate = user.lastUpdateToken
         )
     }
+
 }

@@ -36,14 +36,14 @@ import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 fun AuthorizationScreen(
     registration: () -> Unit = {},
     recoverPassword: () -> Unit = {},
-    login: () -> Unit = {},
+    login: (Long) -> Unit = { _ -> },
     viewModel: AuthorizationViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
 
     LaunchedEffect(state.user) {
         if (state.user != null) {
-            login()
+            login(state.user!!.userId)
         }
     }
 

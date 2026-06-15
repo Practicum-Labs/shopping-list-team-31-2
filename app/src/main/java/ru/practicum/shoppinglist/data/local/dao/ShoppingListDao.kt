@@ -10,8 +10,8 @@ import ru.practicum.shoppinglist.data.local.entities.ShoppingListEntity
 @Dao
 interface ShoppingListDao {
 
-    @Query("SELECT * FROM shopping_lists")
-    fun getAllLists(): Flow<List<ShoppingListEntity>>
+    @Query("SELECT * FROM shopping_lists WHERE user_id = :userId")
+    fun getAllListsByUserId(userId: Long): Flow<List<ShoppingListEntity>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertList(list: ShoppingListEntity): Long
@@ -22,8 +22,8 @@ interface ShoppingListDao {
     @Query("DELETE FROM shopping_lists WHERE id = :id")
     suspend fun deleteListById(id: Long)
 
-    @Query("DELETE FROM shopping_lists")
-    suspend fun delete()
+    @Query("DELETE FROM shopping_lists WHERE user_id = :userId")
+    suspend fun deleteAllListsByUserId(userId: Long)
 
     @Query("UPDATE shopping_lists SET name = :newName WHERE id = :id")
     suspend fun renameList(id: Long, newName: String)
