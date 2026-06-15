@@ -17,9 +17,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
-import ru.practicum.shoppinglist.ui.authorization.ShoppingListsButton
 import ru.practicum.shoppinglist.ui.authorization.AuthField
 import ru.practicum.shoppinglist.ui.authorization.ErrorMessage
+import ru.practicum.shoppinglist.ui.authorization.ShoppingListsButton
 import ru.practicum.shoppinglist.ui.navigation.ActionBack
 import ru.practicum.shoppinglist.ui.navigation.AppBarTop
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme

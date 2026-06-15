@@ -90,7 +90,7 @@ fun OnboardScreen(
 }
 
 private fun navigateToList(navController: NavHostController) {
-    navController.navigate(Routes.REGISTRATION) {
+    navController.navigate(Routes.AUTHORIZATION) {
         popUpTo(Routes.ONBOARD) { inclusive = true }
     }
 }

@@ -1,6 +1,6 @@
 package ru.practicum.shoppinglist.domain.model
 
-sealed class Resource<T>(
+sealed class Resource<out T>(
     val data: T? = null,
     val message: String? = null
 ) {

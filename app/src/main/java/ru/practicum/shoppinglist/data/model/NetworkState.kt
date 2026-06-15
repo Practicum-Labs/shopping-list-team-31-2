@@ -6,5 +6,5 @@ enum class NetworkState(val value: String) {
     Unauthorized("Unauthorized"),
     Conflict("user with this email already exist"),
     UnexpectedError("Unexpected error"),
-    NoConnection("Проверьте подключение к интернету")
+    NoConnection("Check Internet connection")
 }

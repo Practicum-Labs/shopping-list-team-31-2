@@ -68,7 +68,7 @@ fun MainScreen(
     val context = LocalContext.current
 
     HandleMainScreenEffects(
-        viewModel = viewModel,
+        state = state,
         context = context,
         onClearErrors = { viewModel.processIntent(ShoppingListIntent.ClearErrors) },
         onClearNewListState = { viewModel.processIntent(ShoppingListIntent.ClearNewListState) },
@@ -86,7 +86,7 @@ fun MainScreen(
                 )
             )
             showBottomSheet = false
-            selectedCardIndex = -1
+            selectedCardIndex = -1L
             viewModel.processIntent(ShoppingListIntent.ClearNewListState)
         } else {
             showBottomSheet = false
@@ -151,106 +151,148 @@ private fun MainScreenContent(
     onIconClick: (Long) -> Unit,
     onListClick: (Long) -> Unit
 ) {
-    val backgroundColor = if (state.isSearchActive) {
-        MaterialTheme.colorScheme.onPrimary
-    } else {
-        MaterialTheme.colorScheme.primary
-    }
-
     Column(
         modifier = Modifier
             .fillMaxSize()
             .statusBarsPadding()
-            .background(backgroundColor)
-
+            .background(
+                if (state.isSearchActive) {
+                    MaterialTheme.colorScheme.onPrimary
+                } else {
+                    MaterialTheme.colorScheme.primary
+                }
+            )
     ) {
-        if (state.isSearchActive) {
-            SearchOverlay(
-                searchText = state.searchQuery,
-                onSearchTextChange = { query ->
-                    viewModel.processIntent(ShoppingListIntent.UpdateSearchQuery(query))
-                },
-                onCloseSearch = {
-                    viewModel.processIntent(ShoppingListIntent.SetSearchActive(false))
-                }
-            )
-        } else {
-            AppBarTop(
-                title = stringResource(R.string.main_lists),
-                search = ActionSearch(isView = true, onClick = {
-                    viewModel.processIntent(ShoppingListIntent.SetSearchActive(true))
-                }),
-                delete = ActionDelete(isView = true, onClick = onDeleteClick),
-                theme = ActionTheme(isView = true, onClick = onTheme),
-            )
-        }
+        MainScreenTopBar(
+            state = state,
+            viewModel = viewModel,
+            onTheme = onTheme,
+            onDeleteClick = onDeleteClick
+        )
 
-        when {
-            state.isSearchActive && state.searchQuery.isNotBlank() -> {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(1.dp)
-                        .background(Color.Black.copy(alpha = 0.1f))
+        MainScreenBody(
+            state = state,
+            onIconClick = onIconClick,
+            onListClick = onListClick
+        )
+    }
+}
+
+@Composable
+private fun MainScreenTopBar(
+    state: ShoppingListState,
+    viewModel: ShoppingListViewModel,
+    onTheme: () -> Unit,
+    onDeleteClick: () -> Unit
+) {
+    if (state.isSearchActive) {
+        SearchOverlay(
+            searchText = state.searchQuery,
+            onSearchTextChange = {
+                viewModel.processIntent(
+                    ShoppingListIntent.UpdateSearchQuery(it)
                 )
-
-                when {
-                    state.displayLists.isEmpty() -> {
-                        EmptySearchResult()
-                    }
-
-                    else -> {
-                        SearchResultsContent(
-                            lists = state.displayLists,
-                            onIconClick = onIconClick,
-                            onListClick = onListClick
-                        )
-                    }
-                }
+            },
+            onCloseSearch = {
+                viewModel.processIntent(
+                    ShoppingListIntent.SetSearchActive(false)
+                )
             }
-
-            state.isSearchActive && state.searchQuery.isBlank() -> {
-                Box(modifier = Modifier.fillMaxSize()) {
-                    when {
-                        state.shoppingLists.isNotEmpty() -> {
-                            ShoppingListsContent(
-                                modifier = Modifier.fillMaxSize(),
-                                lists = state.shoppingLists,
-                                onIconClick = onIconClick,
-                                onListClick = onListClick
-                            )
-                        }
-
-                        else -> {
-                            EmptyListsScreen()
-                        }
-                    }
-
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .background(Color.Black.copy(alpha = 0.5f))
+        )
+    } else {
+        AppBarTop(
+            title = stringResource(R.string.main_lists),
+            search = ActionSearch(
+                isView = true,
+                onClick = {
+                    viewModel.processIntent(
+                        ShoppingListIntent.SetSearchActive(true)
                     )
                 }
-            }
+            ),
+            delete = ActionDelete(
+                isView = true,
+                onClick = onDeleteClick
+            ),
+            theme = ActionTheme(
+                isView = true,
+                onClick = onTheme
+            )
+        )
+    }
+}
 
-            else -> {
-                when {
-                    state.shoppingLists.isNotEmpty() -> {
-                        ShoppingListsContent(
-                            modifier = Modifier.weight(1f),
-                            lists = state.shoppingLists,
-                            onIconClick = onIconClick,
-                            onListClick = onListClick
-                        )
-                    }
+@Composable
+private fun MainScreenBody(
+    state: ShoppingListState,
+    onIconClick: (Long) -> Unit,
+    onListClick: (Long) -> Unit
+) {
+    if (state.isSearchActive) {
+        SearchContent(
+            state,
+            onIconClick,
+            onListClick
+        )
+    } else {
+        DefaultContent(
+            state,
+            onIconClick,
+            onListClick
+        )
+    }
+}
 
-                    else -> {
-                        EmptyListsScreen()
-                    }
-                }
-            }
-        }
+@Composable
+private fun SearchContent(
+    state: ShoppingListState,
+    onIconClick: (Long) -> Unit,
+    onListClick: (Long) -> Unit
+) {
+    if (state.searchQuery.isBlank()) {
+        EmptySearchResult()
+        return
+    }
+
+    SearchResults(
+        state = state,
+        onIconClick = onIconClick,
+        onListClick = onListClick
+    )
+}
+
+@Composable
+private fun SearchResults(
+    state: ShoppingListState,
+    onIconClick: (Long) -> Unit,
+    onListClick: (Long) -> Unit
+) {
+    if (state.displayLists.isEmpty()) {
+        EmptySearchResult()
+    } else {
+        SearchResultsContent(
+            lists = state.displayLists,
+            onIconClick = onIconClick,
+            onListClick = onListClick
+        )
+    }
+}
+
+@Composable
+private fun DefaultContent(
+    state: ShoppingListState,
+    onIconClick: (Long) -> Unit,
+    onListClick: (Long) -> Unit
+) {
+    if (state.shoppingLists.isEmpty()) {
+        EmptyListsScreen()
+    } else {
+        ShoppingListsContent(
+            modifier = Modifier.fillMaxSize(),
+            lists = state.shoppingLists,
+            onIconClick = onIconClick,
+            onListClick = onListClick
+        )
     }
 }
 
@@ -310,15 +352,13 @@ private fun EmptyListsScreen() {
 
 @Composable
 private fun HandleMainScreenEffects(
-    viewModel: ShoppingListViewModel,
     context: Context,
     onClearErrors: () -> Unit,
     onClearNewListState: () -> Unit,
     onSetShowBottomSheet: (Boolean) -> Unit,
-    onSetSelectedCardIndex: (Long) -> Unit
+    onSetSelectedCardIndex: (Long) -> Unit,
+    state: ShoppingListState
 ) {
-    val state by viewModel.uiState.collectAsState()
-
     LaunchedEffect(state.errorMessage) {
         state.errorMessage?.let { message ->
             val displayMessage = try {

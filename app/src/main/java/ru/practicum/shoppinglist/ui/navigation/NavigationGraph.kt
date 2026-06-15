@@ -5,10 +5,10 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import ru.practicum.shoppinglist.ui.authorization.AuthorizationScreen
 import ru.practicum.shoppinglist.ui.list.ListScreen
 import ru.practicum.shoppinglist.ui.main.MainScreen
 import ru.practicum.shoppinglist.ui.onboard.OnboardScreen
-import ru.practicum.shoppinglist.ui.authorization.AuthorizationScreen
 import ru.practicum.shoppinglist.ui.recoverpassword.RecoverPassword
 import ru.practicum.shoppinglist.ui.registration.RegistrationScreen
 
@@ -30,19 +30,23 @@ fun NavigationGraph(
             AuthorizationScreen(
                 login = { navController.navigate(Routes.MAIN) },
                 registration = { navController.navigate(Routes.REGISTRATION) },
-                recoverPassword = {navController.navigate(Routes.RECOVER_PASSWORD)}
+                recoverPassword = { navController.navigate(Routes.RECOVER_PASSWORD) }
             )
         }
 
         composable(Routes.REGISTRATION) {
             RegistrationScreen(
-                backToAuth = { navController.navigate(Routes.AUTHORIZATION) }
+                backToAuth = { navController.navigate(Routes.AUTHORIZATION) {
+                    popUpTo(Routes.REGISTRATION) { inclusive = true }
+                } }
             )
         }
 
         composable(Routes.RECOVER_PASSWORD) {
             RecoverPassword(
-                backToAuth = { navController.navigate(Routes.AUTHORIZATION) }
+                backToAuth = { navController.navigate(Routes.AUTHORIZATION) {
+                    popUpTo(Routes.RECOVER_PASSWORD) { inclusive = true }
+                } }
             )
         }
 

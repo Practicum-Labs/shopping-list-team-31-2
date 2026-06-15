@@ -25,5 +25,4 @@ class ShoppingListMapper @Inject constructor() {
         return shoppingListsEntity.reversed().map { shoppingList -> convertEntityToShoppingList(shoppingList) }
     }
 
-
 }

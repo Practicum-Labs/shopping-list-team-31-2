@@ -12,11 +12,10 @@ import ru.practicum.shoppinglist.data.local.entities.UserEntity
 @Database(
     entities = [ShoppingListEntity::class, ProductEntity::class, UserEntity::class],
     version = 2,
-    exportSchema = false
+    exportSchema = true
 )
 abstract class AppDatabase : RoomDatabase() {
     abstract fun shoppingListDao(): ShoppingListDao
     abstract fun productDao(): ProductDao
-
     abstract fun usersDao(): UsersDao
 }

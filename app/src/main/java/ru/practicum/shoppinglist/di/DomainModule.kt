@@ -22,7 +22,7 @@ interface DomainModule {
 
     @Binds
     @Singleton
-    abstract fun bindAuthInteractor(
+    fun bindAuthInteractor(
         impl: AuthInteractorImpl
     ): AuthInteractor
 }

@@ -73,4 +73,12 @@
     <string name="icon_not_update">Не удалось обновить иконку</string>
     <string name="no_search_results">Ничего не найдено</string>
 
+    <string name="error_invalid_email">Некорректный email</string>
+    <string name="error_empty_fields">Не все поля заполнены</string>
+    <string name="error_password_length">Пароль должен содержать не менее 7 символов</string>
+    <string name="error_password_mismatch">Пароли не совпадают</string>
+    <string name="error_registration">Ошибка регистрации</string>
+    <string name="error_no_connection">Проверьте подключение к интернету</string>
+    <string name="error_conflict">Пользователь с таким email уже зарегистрирован</string>"
+
 </resources>

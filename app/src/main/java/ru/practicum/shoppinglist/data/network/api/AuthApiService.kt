@@ -1,6 +1,5 @@
 package ru.practicum.shoppinglist.data.network.api
 
-import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
@@ -16,26 +15,26 @@ interface AuthApiService {
     @POST("auth/registration")
     suspend fun register(
         @Body request: LoginRequest
-    ): Response<LoginResponse>
+    ): LoginResponse
 
     @POST("auth/login")
     suspend fun login(
         @Body request: LoginRequest
-    ): Response<LoginResponse>
+    ): LoginResponse
 
     @POST("auth/recovery")
     suspend fun recovery(
         @Header("email") email: String
-    ): Response<String>
+    ): String
 
     @POST("auth/refresh")
     suspend fun refreshToken(
         @Body request: RefreshTokenRequest
-    ): Response<RefreshTokenResponse>
+    ): RefreshTokenResponse
 
     @GET("auth/check")
     suspend fun checkAuth(
         @Header("Authorization") token: String
-    ): Response<CheckResponse>
+    ): CheckResponse
 
 }

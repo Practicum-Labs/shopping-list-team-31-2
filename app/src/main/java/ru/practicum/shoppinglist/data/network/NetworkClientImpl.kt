@@ -15,7 +15,7 @@ import ru.practicum.shoppinglist.data.network.model.request.LoginRequest
 import ru.practicum.shoppinglist.data.network.model.request.RefreshTokenRequest
 import javax.inject.Inject
 
-class NetworkClientImpl @Inject constructor (
+class NetworkClientImpl @Inject constructor(
     private val authApi: AuthApiService,
     @ApplicationContext private val context: Context
 ) : NetworkClient {
@@ -27,8 +27,8 @@ class NetworkClientImpl @Inject constructor (
         val capabilities = connectivityManager.getNetworkCapabilities(network)
         val hasInternet = capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
         val isPreferredTransport = capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) == true ||
-                capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true ||
-                capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) == true
+            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) == true ||
+            capabilities?.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) == true
         return hasInternet ?: false && isPreferredTransport
     }
 
@@ -47,7 +47,10 @@ class NetworkClientImpl @Inject constructor (
                 }
             } catch (ex: HttpException) {
                 Log.e("error", "Ошибка: ${ex.message}")
-                NetworkResponse().apply { resultCode = NetworkResponse.BAD_REQUEST }
+                NetworkResponse().apply {
+                    resultCode = ex.code()
+                    data = ex.response()?.errorBody()?.string()
+                }
             }
         }
     }

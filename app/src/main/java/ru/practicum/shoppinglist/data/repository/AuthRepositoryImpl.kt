@@ -24,94 +24,93 @@ class AuthRepositoryImpl @Inject constructor(
     private val dao: UsersDao
 ) : AuthRepository {
     override fun login(
-        email: String, password: String
+        email: String,
+        password: String
     ): Flow<Resource<User?>> = flow {
-        val response =
-            networkClient.doRequestLogin(user = LoginRequest(email = email, password = password))
-        when (response.resultCode) {
-            NetworkResponse.NO_CONNECTION -> {
-                emit(Resource.Error(message = NetworkState.NoConnection.value))
-            }
-
-            NetworkResponse.OK_RESULT -> {
-                val authorizationResponse = response.data as LoginResponse
-                val mappedResponse = mapper.loginResponseToUser(authorizationResponse)
-                emit(Resource.Success(mapper.mapEntityToUser(mappedResponse)))
-            }
-
-            NetworkResponse.BAD_REQUEST -> {
-                when (response.data as String) {
-                    NetworkState.IncorrectEmail.value -> {
-                        emit(Resource.Error(message = NetworkState.IncorrectEmail.value))
-                    }
-
-                    NetworkState.ShortPassword.value -> {
-                        emit(Resource.Error(message = NetworkState.ShortPassword.value))
-                    }
-
-                    else -> {
-                        emit(Resource.Error(message = NetworkState.UnexpectedError.value))
-                    }
+        val response = networkClient.doRequestLogin(
+            LoginRequest(email, password)
+        )
+        val error = handleCommonError(response.resultCode)
+        if (error != null) {
+            emit(error)
+        } else {
+            when (response.resultCode) {
+                NetworkResponse.OK_RESULT -> {
+                    val data = response.data as LoginResponse
+                    val entity = mapper.loginResponseToUser(data)
+                    emit(
+                        Resource.Success(
+                            mapper.mapEntityToUser(entity)
+                        )
+                    )
                 }
-            }
-
-            NetworkResponse.UNAUTHORIZED -> {
-                if (response.data as String == NetworkState.Unauthorized.value) {
-                    emit(Resource.Error(message = NetworkState.Unauthorized.value))
-                } else {
-                    emit(Resource.Error(message = NetworkState.UnexpectedError.value))
+                NetworkResponse.BAD_REQUEST -> {
+                    emit(handleBadRequest(response.data as String))
                 }
-            }
-
-            else -> {
-                emit(Resource.Error(message = NetworkState.UnexpectedError.value))
+                NetworkResponse.UNAUTHORIZED -> {
+                    emit(handleUnauthorized(response.data as String))
+                }
+                else -> {
+                    emit(
+                        Resource.Error(
+                            NetworkState.UnexpectedError.value
+                        )
+                    )
+                }
             }
         }
     }
 
     override fun registration(
-        email: String, password: String
+        email: String,
+        password: String
     ): Flow<Resource<User?>> = flow {
-        val response = networkClient.doRequestRegistration(user = LoginRequest(email = email, password = password))
-        when (response.resultCode) {
-            NetworkResponse.NO_CONNECTION -> {
-                emit(Resource.Error(message = NetworkState.NoConnection.value))
-            }
-
-            NetworkResponse.OK_RESULT -> {
-                val registrationResponse = response.data as LoginResponse
-                val registrationUser = mapper.loginResponseToUser(registrationResponse)
-                dao.registrationUser(registrationUser)
-                emit(Resource.Success(mapper.mapEntityToUser(registrationUser)))
-            }
-
-            NetworkResponse.BAD_REQUEST -> {
-                when (response.data as String) {
-                    NetworkState.IncorrectEmail.value -> {
-                        emit(Resource.Error(message = NetworkState.IncorrectEmail.value))
-                    }
-
-                    NetworkState.ShortPassword.value -> {
-                        emit(Resource.Error(message = NetworkState.ShortPassword.value))
-                    }
-
-                    else -> {
-                        emit(Resource.Error(message = NetworkState.UnexpectedError.value))
-                    }
-                }
-            }
-
-            NetworkResponse.CONFLICT -> {
-                if (response.data as String == NetworkState.Conflict.value) {
-                    emit(Resource.Error(message = NetworkState.Conflict.value))
-                } else {
-                    emit(Resource.Error(message = NetworkState.UnexpectedError.value))
+        val response = networkClient.doRequestRegistration(
+            LoginRequest(
+                email = email,
+                password = password
+            )
+        )
+        val error = handleCommonError(response.resultCode)
+        if (error != null) {
+            emit(error)
+        } else {
+            when (response.resultCode) {
+                NetworkResponse.OK_RESULT -> {
+                    val data = response.data as LoginResponse
+                    val userEntity =
+                        mapper.loginResponseToUser(data)
+                    dao.registrationUser(userEntity)
+                    emit(
+                        Resource.Success(
+                            mapper.mapEntityToUser(userEntity)
+                        )
+                    )
                 }
 
-            }
+                NetworkResponse.BAD_REQUEST -> {
+                    emit(
+                        handleBadRequest(
+                            response.data as String
+                        )
+                    )
+                }
 
-            else -> {
-                emit(Resource.Error(message = NetworkState.UnexpectedError.value))
+                NetworkResponse.CONFLICT -> {
+                    emit(
+                        handleConflict(
+                            response.data as String
+                        )
+                    )
+                }
+
+                else -> {
+                    emit(
+                        Resource.Error(
+                            NetworkState.UnexpectedError.value
+                        )
+                    )
+                }
             }
         }
     }
@@ -124,7 +123,7 @@ class AuthRepositoryImpl @Inject constructor(
             }
 
             NetworkResponse.OK_RESULT -> {
-                val recoverResponse = response.data as String
+                val recoverResponse = response.data?.toString() ?: ""
                 emit(Resource.Success(recoverResponse))
             }
 
@@ -170,10 +169,13 @@ class AuthRepositoryImpl @Inject constructor(
             NetworkResponse.OK_RESULT -> {
                 val refreshResponse = response.data as RefreshTokenResponse
                 val mapRefreshToken = mapper.refreshTokenResponseToRefreshToken(refreshResponse)
-                val user = dao.getUserByRefreshToken(refreshToken)
-                user.refreshToken = mapRefreshToken.refreshToken
-                user.accessToken = mapRefreshToken.accessToken
-                dao.updateUser(user)
+                val user = mapper.mapEntityToUser(dao.getUserByRefreshToken(refreshToken))
+                val updatedUser = user.copy(
+                    refreshToken = mapRefreshToken.refreshToken,
+                    accessToken = mapRefreshToken.accessToken,
+                    lastUpdateToken = System.currentTimeMillis()
+                )
+                dao.updateUser(mapper.mapUserToEntity(updatedUser))
                 emit(Resource.Success(mapRefreshToken))
             }
 
@@ -195,7 +197,63 @@ class AuthRepositoryImpl @Inject constructor(
         return mapper.mapEntityToUser(dao.getUserById(userId))
     }
 
-    private fun getUserByAccessToken(accessToken: String) : User {
+    private fun getUserByAccessToken(accessToken: String): User {
         return mapper.mapEntityToUser(dao.getUserByAccessToken(accessToken))
     }
+
+    private fun handleCommonError(
+        resultCode: Int
+    ): Resource.Error<Nothing>? {
+        return when (resultCode) {
+            NetworkResponse.NO_CONNECTION -> {
+                Resource.Error(NetworkState.NoConnection.value)
+            }
+
+            else -> null
+        }
+    }
+
+    private fun handleBadRequest(
+        message: String
+    ): Resource.Error<Nothing> {
+        return when (message) {
+            NetworkState.IncorrectEmail.value -> {
+                Resource.Error(NetworkState.IncorrectEmail.value)
+            }
+
+            NetworkState.ShortPassword.value -> {
+                Resource.Error(NetworkState.ShortPassword.value)
+            }
+
+            else -> {
+                Resource.Error(NetworkState.UnexpectedError.value)
+            }
+        }
+    }
+
+    private fun handleUnauthorized(
+        message: String
+    ): Resource.Error<Nothing> {
+        return if (message == NetworkState.Unauthorized.value) {
+            Resource.Error(NetworkState.Unauthorized.value)
+        } else {
+            Resource.Error(NetworkState.UnexpectedError.value)
+        }
+    }
+
+    private fun handleConflict(
+        message: String
+    ): Resource.Error<Nothing> {
+        return if (message == NetworkState.Conflict.value) {
+            Resource.Error(
+                NetworkState.Conflict.value
+            )
+
+        } else {
+            Resource.Error(
+                NetworkState.UnexpectedError.value
+            )
+        }
+    }
+
 }

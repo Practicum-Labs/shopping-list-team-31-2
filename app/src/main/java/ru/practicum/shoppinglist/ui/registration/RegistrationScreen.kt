@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,6 +35,12 @@ fun RegistrationScreen(
     viewModel: RegistrationViewModel = hiltViewModel()
 ) {
     val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(state.user) {
+        if (state.user != null) {
+            backToAuth()
+        }
+    }
 
     ShoppingListTheme {
         Column(
@@ -82,12 +89,19 @@ fun RegistrationScreen(
                     label = stringResource(R.string.one_more_password),
                     value = state.currentRepeatPassword,
                     onValueChange = { newRepeatPassword ->
-                        viewModel.processIntent(RegistrationIntent.SetCurrentRepeatPassword(newRepeatPassword))
+                        viewModel.processIntent(
+                            RegistrationIntent.SetCurrentRepeatPassword(
+                                newRepeatPassword
+                            )
+                        )
                     },
                     placeholder = stringResource(R.string.enter_one_more_password),
                     isPassword = true
                 )
-                ErrorMessage(isError = !state.errorMessage.isNullOrEmpty(), errorMessage = state.errorMessage)
+                ErrorMessage(
+                    isError = state.errorMessage != null,
+                    errorMessage = state.errorMessage?.let { stringResource(it) }
+                )
                 ShoppingListsButton(
                     buttonName = stringResource(R.string.register),
                     enabled = state.isRegistrationActive,

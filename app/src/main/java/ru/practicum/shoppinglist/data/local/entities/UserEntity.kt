@@ -10,9 +10,9 @@ data class UserEntity(
     @ColumnInfo(name = "user_id")
     val userId: Long = 0,
     @ColumnInfo(name = "access_token")
-    var accessToken: String,
+    val accessToken: String,
     @ColumnInfo(name = "refresh_token")
-    var refreshToken: String,
+    val refreshToken: String,
     @ColumnInfo(name = "last_token_update")
     val lastTokenUpdate: Long
 )
