@@ -52,7 +52,6 @@ fun SortMenuContent(
     }
 }
 
-@Suppress("CognitiveComplexMethod")
 @Composable
 private fun MenuItem(
     icon: Int,
@@ -63,6 +62,12 @@ private fun MenuItem(
     isEnabled: Boolean = true,
     isSelected: Boolean = false
 ) {
+    val tintColor = if (isEnabled) {
+        MaterialTheme.colorScheme.inverseOnSurface
+    } else {
+        MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.5f)
+    }
+
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -73,11 +78,7 @@ private fun MenuItem(
         Icon(
             painter = painterResource(icon),
             contentDescription = title,
-            tint = if (isEnabled) {
-                MaterialTheme.colorScheme.inverseOnSurface
-            } else {
-                MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.5f)
-            },
+            tint = tintColor,
             modifier = Modifier.padding(16.dp)
         )
 
@@ -85,17 +86,13 @@ private fun MenuItem(
             Text(
                 text = title,
                 style = MaterialTheme.typography.bodyLarge,
-                color = if (isEnabled) {
-                    MaterialTheme.colorScheme.inverseOnSurface
-                } else {
-                    MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.5f)
-                },
+                color = tintColor
             )
             if (description.isNotBlank()) {
                 Text(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.7f)
+                    color = tintColor.copy(alpha = 0.7f)
                 )
             }
         }
@@ -106,8 +103,8 @@ private fun MenuItem(
                 onClick = if (isEnabled) onClick else null,
                 enabled = isEnabled,
                 colors = RadioButtonDefaults.colors(
-                    selectedColor = MaterialTheme.colorScheme.inverseOnSurface,
-                    unselectedColor = MaterialTheme.colorScheme.inverseOnSurface.copy(alpha = 0.5f)
+                    selectedColor = tintColor,
+                    unselectedColor = tintColor.copy(alpha = 0.5f)
 
                 )
             )

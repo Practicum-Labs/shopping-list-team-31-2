@@ -15,6 +15,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.SheetState
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -34,6 +35,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.list.components.BottomSheetMenu
@@ -54,7 +56,6 @@ import ru.practicum.shoppinglist.ui.navigation.AppBarTop
 import ru.practicum.shoppinglist.ui.theme.NoActiveElement
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
-@Suppress("CyclomaticComplexMethod", "CognitiveComplexMethod")
 @SuppressLint("RestrictedApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -174,91 +175,46 @@ fun ListScreen(
                     )
                 }
 
-                if (shouldBeVisible) {
-                    ModalBottomSheet(
-                        onDismissRequest = { viewModel.sendIntent(ProductIntent.HideBottomSheet) },
-                        sheetState = bottomSheetState,
-                        containerColor = MaterialTheme.colorScheme.inverseSurface
-                    ) {
-                        Box(modifier = Modifier.fillMaxWidth()) {
-                            Column(
-                                modifier = Modifier.fillMaxWidth()
-                            ) {
-                                val productDataToUse =
-                                    (state as? ProductsState.Content)?.newProductData
-                                        ?: NewProductData(savedName, savedQuantity, savedUnit)
-
-                                BottomSheetScreen(
-                                    productData = productDataToUse,
-                                    onValueChange = { field, value ->
-                                        viewModel.sendIntent(
-                                            ProductIntent.OnInputValueChanged(
-                                                fieldType = field,
-                                                value = value
-                                            )
-                                        )
-                                    }
-                                )
-                            }
-
-                            FloatingActionButton(
-                                onClick = {
-                                    viewModel.sendIntent(ProductIntent.SaveNewProduct)
-                                },
-                                modifier = Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(end = 16.dp, bottom = 32.dp),
-                                containerColor = NoActiveElement
-                            ) {
-                                Icon(
-                                    painter = painterResource(R.drawable.ic_check),
-                                    contentDescription = null,
-                                    tint = null
-                                )
-                            }
+                BottomSheetContent(
+                    state = state,
+                    viewModel = viewModel,
+                    bottomSheetState = bottomSheetState,
+                    savedName = savedName,
+                    savedQuantity = savedQuantity,
+                    savedUnit = savedUnit,
+                    onHeightChange = { newHeight ->
+                        if (bottomSheetHeightPx != newHeight) {
+                            bottomSheetHeightPx = newHeight
+                            forceUpdate++
                         }
                     }
-                }
+                )
 
-                if (showMenu) {
-                    ModalBottomSheet(
-                        onDismissRequest = { scopeMenu.launch { sheetStateMenu.hide() } },
-                        sheetState = sheetStateMenu,
-                        containerColor = MaterialTheme.colorScheme.inverseSurface,
-                    ) {
-                        BottomSheetMenu(
-                            onSortClick = {
-                                scopeMenu.launch { sheetStateMenu.hide() }
-                                viewModel.sendIntent(ProductIntent.ShowSortMenu)
-                            },
-                            onDeleteAllClick = {
-                                scopeMenu.launch { sheetStateMenu.hide() }
-                                showDeleteAllDialog = true
-                            },
-                            onClearPurchasedClick = {
-                                scopeMenu.launch { sheetStateMenu.hide() }
-                                showClearPurchasedDialog = true
-                            }
-                        )
-
+                MenuBottomSheet(
+                    showMenu = showMenu,
+                    sheetStateMenu = sheetStateMenu,
+                    scopeMenu = scopeMenu,
+                    onSortClick = {
+                        scopeMenu.launch { sheetStateMenu.hide() }
+                        viewModel.sendIntent(ProductIntent.ShowSortMenu)
+                    },
+                    onDeleteAllClick = {
+                        scopeMenu.launch { sheetStateMenu.hide() }
+                        showDeleteAllDialog = true
+                    },
+                    onClearPurchasedClick = {
+                        scopeMenu.launch { sheetStateMenu.hide() }
+                        showClearPurchasedDialog = true
                     }
+                )
 
-                }
-
-                if (isSortMenuVisible) {
-                    ModalBottomSheet(
-                        onDismissRequest = { viewModel.sendIntent(ProductIntent.HideSortMenu) },
-                        sheetState = sortSheetState,
-                        containerColor = MaterialTheme.colorScheme.inverseSurface,
-                    ) {
-                        SortMenuContent(
-                            onSortAlphabetically = {
-                                viewModel.sendIntent(ProductIntent.SortProductsAlphabetically)
-                            },
-
-                        )
+                SortMenuBottomSheet(
+                    isSortMenuVisible = isSortMenuVisible,
+                    sortSheetState = sortSheetState,
+                    onSortAlphabetically = {
+                        viewModel.sendIntent(ProductIntent.SortProductsAlphabetically)
                     }
-                }
+                )
 
                 if (showDeleteAllDialog) {
                     DeleteDialog(
@@ -367,6 +323,104 @@ private fun ContentScreen(
                     paddingValues = PaddingValues(0.dp)
                 )
             }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BottomSheetContent(
+    state: ProductsState,
+    viewModel: ProductViewModel,
+    bottomSheetState: SheetState,
+    savedName: String,
+    savedQuantity: String,
+    savedUnit: String,
+    onHeightChange: (Float) -> Unit
+) {
+    if ((state as? ProductsState.Content)?.isBottomSheetVisible == true) {
+        ModalBottomSheet(
+            onDismissRequest = { viewModel.sendIntent(ProductIntent.HideBottomSheet) },
+            sheetState = bottomSheetState,
+            containerColor = MaterialTheme.colorScheme.inverseSurface
+        ) {
+            Box(modifier = Modifier.fillMaxWidth()) {
+                Column(modifier = Modifier.fillMaxWidth()) {
+                    val productDataToUse = (state as? ProductsState.Content)?.newProductData
+                        ?: NewProductData(savedName, savedQuantity, savedUnit)
+
+                    BottomSheetScreen(
+                        productData = productDataToUse,
+                        onValueChange = { field, value ->
+                            viewModel.sendIntent(
+                                ProductIntent.OnInputValueChanged(
+                                    fieldType = field,
+                                    value = value
+                                )
+                            )
+                        }
+                    )
+                }
+
+                FloatingActionButton(
+                    onClick = { viewModel.sendIntent(ProductIntent.SaveNewProduct) },
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(end = 16.dp, bottom = 32.dp),
+                    containerColor = NoActiveElement
+                ) {
+                    Icon(
+                        painter = painterResource(R.drawable.ic_check),
+                        contentDescription = null,
+                        tint = null
+                    )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MenuBottomSheet(
+    showMenu: Boolean,
+    sheetStateMenu: SheetState,
+    scopeMenu: CoroutineScope,
+    onSortClick: () -> Unit,
+    onDeleteAllClick: () -> Unit,
+    onClearPurchasedClick: () -> Unit
+) {
+    if (showMenu) {
+        ModalBottomSheet(
+            onDismissRequest = { scopeMenu.launch { sheetStateMenu.hide() } },
+            sheetState = sheetStateMenu,
+            containerColor = MaterialTheme.colorScheme.inverseSurface,
+        ) {
+            BottomSheetMenu(
+                onSortClick = onSortClick,
+                onDeleteAllClick = onDeleteAllClick,
+                onClearPurchasedClick = onClearPurchasedClick
+            )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SortMenuBottomSheet(
+    isSortMenuVisible: Boolean,
+    sortSheetState: SheetState,
+    onSortAlphabetically: () -> Unit
+) {
+    if (isSortMenuVisible) {
+        ModalBottomSheet(
+            onDismissRequest = { onSortAlphabetically() },
+            sheetState = sortSheetState,
+            containerColor = MaterialTheme.colorScheme.inverseSurface,
+        ) {
+            SortMenuContent(
+                onSortAlphabetically = onSortAlphabetically
+            )
         }
     }
 }

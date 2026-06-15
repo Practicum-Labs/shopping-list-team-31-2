@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
+private val DESCRIPTION_COLOR = Color(0xFF34C759)
 @Composable
 fun BottomSheetMenu(
     onSortClick: () -> Unit,
@@ -94,14 +95,13 @@ fun MenuSort() {
         }
     }
 }
-@Suppress("MagicNumber")
 @Composable
 private fun ViewRowMenu(
     onClick: () -> Unit = {},
     @DrawableRes idIcon: Int = 0,
     title: String = "",
     description: String = "",
-    descriptionColor: Color = Color(0xFF34C759),
+    descriptionColor: Color = DESCRIPTION_COLOR,
     showRadioButton: Boolean = false,
     onSelect: () -> Unit = {}
 ) {
