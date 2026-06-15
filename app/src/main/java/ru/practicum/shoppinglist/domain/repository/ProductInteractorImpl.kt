@@ -2,12 +2,13 @@ package ru.practicum.shoppinglist.domain.repository
 
 import kotlinx.coroutines.flow.Flow
 import ru.practicum.shoppinglist.domain.model.Product
+import javax.inject.Inject
 
-class ProductInteractorImpl(
+class ProductInteractorImpl @Inject constructor(
     val productRepository: ProductRepository
 ) : ProductInteractor {
-    override suspend fun addProduct(product: Product): Long {
-        return productRepository.addProduct(product)
+    override suspend fun addProduct(product: Product) {
+        productRepository.addProduct(product)
     }
 
     override suspend fun getProductById(id: Long): Product? {

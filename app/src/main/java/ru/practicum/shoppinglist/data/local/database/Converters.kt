@@ -9,7 +9,7 @@ class Converters @Inject constructor() {
         return ProductEntity(
             id = product.id,
             name = product.name,
-            quantity = stringT0Double(product.quantity),
+            quantity = stringToInt(product.quantity),
             unit = product.unit,
             listId = product.listId,
             isPurchased = product.isPurchased,
@@ -37,8 +37,8 @@ class Converters @Inject constructor() {
         return productsList.map { product -> map(product) }
     }
 
-    private fun stringT0Double(value: String): Double {
-        return value.trim().toDoubleOrNull() ?: 0.0
+    private fun stringToInt(value: String): Int {
+        return value.trim().toIntOrNull() ?: 0
     }
 
 }

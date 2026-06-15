@@ -1,5 +1,6 @@
 package ru.practicum.shoppinglist.ui.list.viewmodel
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -8,18 +9,19 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.practicum.shoppinglist.domain.model.Product
-import ru.practicum.shoppinglist.domain.repository.ProductRepository
+import ru.practicum.shoppinglist.domain.repository.ProductInteractor
 import javax.inject.Inject
 
 @HiltViewModel
 class ProductViewModel @Inject constructor(
-    private val productRepository: ProductRepository
+    private val productInteractor: ProductInteractor,
+    private val savedStateHandle: SavedStateHandle
 ) : ViewModel() {
 
-    private val _state =
-        MutableStateFlow<ProductsState>(ProductsState.Content(products = emptyList()))
+    private val _state = MutableStateFlow<ProductsState>(ProductsState.Loading)
     val state: StateFlow<ProductsState> = _state.asStateFlow()
 
     private val _uiEffect = MutableSharedFlow<UiEffect>()
@@ -42,7 +44,7 @@ class ProductViewModel @Inject constructor(
         viewModelScope.launch {
             intents.collect { intent ->
                 when (intent) {
-                    is ProductIntent.LoadProducts -> getProducts()
+                    is ProductIntent.LoadProducts -> loadProducts()
                     is ProductIntent.AddProduct -> addProduct(intent.product)
                     is ProductIntent.UpdateProduct -> updateProduct(intent.product)
                     is ProductIntent.DeleteProduct -> deleteProduct(intent.productId)
@@ -52,17 +54,18 @@ class ProductViewModel @Inject constructor(
                         intent.fieldType,
                         intent.value
                     )
-                    is ProductIntent.SaveNewProduct -> saveNewProduct()
-                }
-            }
-        }
-    }
 
-    private fun getProducts() {
-        viewModelScope.launch {
-            productRepository.getProductsInShoppingList(shoppingListId).collect { products ->
-                (_state.value as ProductsState.Content).let { currentState ->
-                    _state.value = currentState.copy(products = products)
+                    is ProductIntent.SaveNewProduct -> saveNewProduct()
+                    is ProductIntent.SortProductsAlphabetically -> sortProductsAlphabetically()
+                    is ProductIntent.DeleteAllProducts -> deleteAllProducts()
+                    is ProductIntent.DeletePurchasedProducts -> deletePurchasedProducts()
+                    is ProductIntent.ShowSortMenu -> showSortMenu()
+                    is ProductIntent.HideSortMenu -> hideSortMenu()
+                    is ProductIntent.ToggleProductPurchased -> toggleProductPurchased(
+                        intent.productId,
+                        intent.isPurchased
+                    )
+
                 }
             }
         }
@@ -78,7 +81,7 @@ class ProductViewModel @Inject constructor(
     private fun updateProduct(product: Product) {
         viewModelScope.launch {
             try {
-                productRepository.updateProduct(product)
+                productInteractor.updateProduct(product)
             } catch (_: Exception) {
                 _uiEffect.emit(UiEffect.ShowError("Не удалось обновить продукт"))
             }
@@ -88,38 +91,38 @@ class ProductViewModel @Inject constructor(
     private fun deleteProduct(productId: Long) {
         viewModelScope.launch {
             try {
-                productRepository.deleteProduct(productId)
+                productInteractor.deleteProduct(productId)
             } catch (_: Exception) {
                 _uiEffect.emit(UiEffect.ShowError("Не удалось удалить продукт"))
             }
         }
     }
 
-    private fun updateNewProductField(fieldType: FieldType, value: String) {
-        (_state.value as? ProductsState.Content)?.let { contentState ->
-            val data = contentState.newProductData ?: NewProductData("", "", "")
-            val updatedData = when (fieldType) {
-                FieldType.NAME -> data.copy(name = value)
-                FieldType.QUANTITY -> data.copy(quantity = value)
-                FieldType.UNIT -> data.copy(unit = value)
-            }
-            _state.value = contentState.copy(newProductData = updatedData)
-        }
-    }
-
     private fun showBottomSheet() {
-        val current = _state.value as ProductsState.Content // Теперь можно приводить сразу
-        val initialData = NewProductData("", "", "")
-        _state.value = current.copy(
-            newProductData = initialData,
-            isBottomSheetVisible = true
-        )
+        (_state.value as? ProductsState.Content)?.let { contentState ->
+            val shouldCreateNewData = contentState.isFirstTimeOpening ||
+                contentState.newProductData == null ||
+                (contentState.newProductData?.name?.isBlank() == true &&
+                    contentState.newProductData?.quantity?.isBlank() == true &&
+                    contentState.newProductData?.unit?.isBlank() == true)
+
+            val initialData = if (shouldCreateNewData) {
+                NewProductData("", "", "")
+            } else {
+                contentState.newProductData ?: NewProductData("", "", "")
+            }
+
+            _state.value = contentState.copy(
+                newProductData = initialData,
+                isBottomSheetVisible = true,
+                isFirstTimeOpening = false
+            )
+        }
     }
 
     private fun hideBottomSheet() {
         (_state.value as? ProductsState.Content)?.let { contentState ->
             _state.value = contentState.copy(
-                newProductData = null,
                 isBottomSheetVisible = false
             )
         }
@@ -127,35 +130,227 @@ class ProductViewModel @Inject constructor(
 
     private fun saveNewProduct() {
         (_state.value as? ProductsState.Content)?.let { contentState ->
-            val data = contentState.newProductData ?: NewProductData("", "", "")
+            val data = contentState.newProductData
+            var currentData = data
+            if (currentData == null || (currentData.name.isBlank() && currentData.quantity.isBlank() && currentData.unit.isBlank())) {
+                val savedName = savedStateHandle.get<String>("saved_product_name") ?: ""
+                val savedQuantity = savedStateHandle.get<String>("saved_product_quantity") ?: ""
+                val savedUnit = savedStateHandle.get<String>("saved_product_unit") ?: ""
+                currentData = NewProductData(savedName, savedQuantity, savedUnit)
+            }
 
-            // Здесь можно добавить проверку данных перед сохранением
-            if (data.name.isNotBlank() && data.quantity.isNotBlank()) {
-                val newProduct = Product(
-                    id = 0,
-                    name = data.name,
-                    quantity = data.quantity,
-                    unit = data.unit,
-                    isPurchased = false,
-                    listId = shoppingListId,
-                    position = contentState.products.size
-                )
-
+            if (currentData.name.isBlank()) {
                 viewModelScope.launch {
-                    try {
-                        productRepository.addProduct(newProduct)
-                        hideBottomSheet()
-                    } catch (_: Exception) {
-                        // Можно показать сообщение об ошибке
-                        _uiEffect.emit(UiEffect.ShowError("Не удалось сохранить продукт"))
-                    }
+                    _uiEffect.emit(UiEffect.ShowError("Введите название продукта"))
                 }
+                return
+            }
 
-            } else {
-                viewModelScope.launch {
-                    _uiEffect.emit(UiEffect.ShowError("Заполните все поля"))
+            val quantity = if (currentData.quantity.isBlank()) "1" else currentData.quantity
+            val unit = if (currentData.unit.isBlank()) "шт" else currentData.unit
+
+            val newProduct = Product(
+                id = 0,
+                name = currentData.name,
+                quantity = quantity,
+                unit = unit,
+                isPurchased = false,
+                listId = shoppingListId,
+                position = contentState.products.size
+            )
+
+            viewModelScope.launch {
+                try {
+                    productInteractor.addProduct(newProduct)
+
+                    savedStateHandle.remove<String>("saved_product_name")
+                    savedStateHandle.remove<String>("saved_product_quantity")
+                    savedStateHandle.remove<String>("saved_product_unit")
+
+                    _state.update { currentState ->
+                        val current =
+                            currentState as? ProductsState.Content ?: return@update currentState
+                        current.copy(
+                            newProductData = NewProductData("", "", ""),
+                            isBottomSheetVisible = false,
+                            isFirstTimeOpening = true
+                        )
+                    }
+                    loadProducts()
+                    _uiEffect.emit(UiEffect.ShowMessage("Продукт добавлен"))
+                } catch (e: Exception) {
+                    _uiEffect.emit(UiEffect.ShowError("Не удалось сохранить продукт: ${e.message}"))
                 }
             }
         }
     }
+
+    private fun updateNewProductField(fieldType: FieldType, value: String) {
+        (_state.value as? ProductsState.Content)?.let { contentState ->
+            val data = contentState.newProductData ?: NewProductData("", "", "")
+
+            val updatedData = when (fieldType) {
+                FieldType.NAME -> data.copy(name = value)
+                FieldType.QUANTITY -> data.copy(quantity = value)
+                FieldType.UNIT -> data.copy(unit = value)
+            }
+
+            savedStateHandle["saved_product_name"] = updatedData.name
+            savedStateHandle["saved_product_quantity"] = updatedData.quantity
+            savedStateHandle["saved_product_unit"] = updatedData.unit
+
+            _state.value = contentState.copy(newProductData = updatedData)
+        }
+    }
+
+    private fun loadProducts() {
+        viewModelScope.launch {
+            try {
+                productInteractor.getProductsInShoppingList(shoppingListId).collect { products ->
+
+                    _state.update { currentState ->
+                        if (currentState is ProductsState.Loading) {
+                            ProductsState.Content(
+                                products = products,
+                                originalProducts = products,
+                                isLoading = false,
+                                errorMessage = null
+                            )
+                        } else {
+                            val current =
+                                currentState as? ProductsState.Content ?: ProductsState.Content()
+                            current.copy(
+                                products = products,
+                                originalProducts = products,
+                                isLoading = false,
+                                errorMessage = null
+                            )
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                _uiEffect.emit(UiEffect.ShowError("Ошибка загрузки: ${e.message}"))
+            }
+        }
+    }
+
+    private fun sortProductsAlphabetically() {
+        _state.update { currentState ->
+            val current = currentState as? ProductsState.Content ?: return@update currentState
+            val sortedProducts = current.products.sortedBy { it.name.lowercase() }
+            current.copy(
+                products = sortedProducts,
+                isSortMenuVisible = false
+            )
+        }
+        viewModelScope.launch {
+            _uiEffect.emit(UiEffect.ShowMessage("Список отсортирован по алфавиту"))
+        }
+    }
+
+    private fun deleteAllProducts() {
+        viewModelScope.launch {
+            _state.update { currentState ->
+                val current = currentState as? ProductsState.Content ?: return@update currentState
+                current.copy(isLoading = true)
+            }
+
+            try {
+                productInteractor.deleteProductByShoppingList(shoppingListId)
+                loadProducts()
+                _uiEffect.emit(UiEffect.ShowMessage("Все продукты удалены"))
+                _state.update { currentState ->
+                    val current =
+                        currentState as? ProductsState.Content ?: return@update currentState
+                    current.copy(isSortMenuVisible = false)
+                }
+            } catch (e: Exception) {
+                _uiEffect.emit(UiEffect.ShowError("Не удалось удалить продукты"))
+                _state.update { currentState ->
+                    val current =
+                        currentState as? ProductsState.Content ?: return@update currentState
+                    current.copy(isLoading = false)
+                }
+            }
+        }
+    }
+
+    private fun deletePurchasedProducts() {
+        viewModelScope.launch {
+            val currentState = _state.value as? ProductsState.Content ?: return@launch
+            val purchasedProducts = currentState.products.filter { it.isPurchased }
+
+            if (purchasedProducts.isEmpty()) {
+                _uiEffect.emit(UiEffect.ShowMessage("Нет купленных продуктов"))
+                return@launch
+            }
+
+            _state.update { currentState ->
+                val current = currentState as? ProductsState.Content ?: return@update currentState
+                current.copy(isLoading = true)
+            }
+
+            try {
+                purchasedProducts.forEach { product ->
+                    productInteractor.deleteProduct(product.id)
+                }
+                loadProducts()
+                _uiEffect.emit(UiEffect.ShowMessage("Купленные продукты удалены"))
+                _state.update { currentState ->
+                    val current =
+                        currentState as? ProductsState.Content ?: return@update currentState
+                    current.copy(isSortMenuVisible = false)
+                }
+            } catch (e: Exception) {
+                _uiEffect.emit(UiEffect.ShowError("Не удалось удалить купленные продукты"))
+                _state.update { currentState ->
+                    val current =
+                        currentState as? ProductsState.Content ?: return@update currentState
+                    current.copy(isLoading = false)
+                }
+            }
+        }
+    }
+
+    private fun showSortMenu() {
+        _state.update { currentState ->
+            val current = currentState as? ProductsState.Content ?: return@update currentState
+            current.copy(isSortMenuVisible = true)
+        }
+    }
+
+    private fun hideSortMenu() {
+        _state.update { currentState ->
+            val current = currentState as? ProductsState.Content ?: return@update currentState
+            current.copy(isSortMenuVisible = false)
+        }
+    }
+
+    fun setShoppingListId(listId: Long) {
+        shoppingListId = listId
+    }
+
+    private fun toggleProductPurchased(productId: Long, isPurchased: Boolean) {
+        viewModelScope.launch {
+            try {
+                val currentState = _state.value as? ProductsState.Content
+                val product = currentState?.products?.find { it.id == productId }
+
+                if (product != null) {
+                    val updatedProduct = product.copy(
+                        isPurchased = !isPurchased
+                    )
+                    productInteractor.updateProduct(updatedProduct)
+                    loadProducts()
+
+                    val statusMessage =
+                        if (!isPurchased) "Товар отмечен как купленный" else "Товар отмечен как не купленный"
+                    _uiEffect.emit(UiEffect.ShowMessage(statusMessage))
+                }
+            } catch (e: Exception) {
+                _uiEffect.emit(UiEffect.ShowError("Не удалось обновить статус товара"))
+            }
+        }
+    }
+
 }

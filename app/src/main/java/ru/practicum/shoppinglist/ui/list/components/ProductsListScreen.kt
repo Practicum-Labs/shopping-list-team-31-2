@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
@@ -31,7 +32,8 @@ import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 fun ProductsListScreen(
     products: List<Product>,
     paddingValues: PaddingValues,
-    onDelete: (Long) -> Unit
+    onDelete: (Long) -> Unit,
+    onTogglePurchased: (Long, Boolean) -> Unit
 ) {
     ShoppingListTheme {
         LazyColumn(
@@ -46,8 +48,9 @@ fun ProductsListScreen(
             ) { product ->
                 ProductItem(
                     item = product,
-                    onSelect = { onDelete(product.id) },
-                    product.isPurchased
+                    onTogglePurchased = { onTogglePurchased(product.id, product.isPurchased) },
+                    onDelete = { onDelete(product.id) }
+
                 )
                 HorizontalDivider(
                     thickness = 1.dp,
@@ -62,23 +65,27 @@ fun ProductsListScreen(
 @Composable
 fun ProductItem(
     item: Product,
-    onSelect: (Product) -> Unit = {},
+    onTogglePurchased: () -> Unit = {},
+    onDelete: () -> Unit = {},
     viewIconMenu: Boolean = false
 ) {
-    var idIcon = R.drawable.ic_check_circle
-    var colorTInt = MaterialTheme.colorScheme.secondary
+    val isChecked = item.isPurchased
 
-    if (!item.isChecked) {
-        idIcon = R.drawable.ic_uncheck
-        colorTInt = MaterialTheme.colorScheme.surfaceTint
+    val idIcon = if (isChecked) R.drawable.ic_check_circle else R.drawable.ic_uncheck
+    val colorTInt = if (isChecked) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.surfaceTint
+    val textColor = if (isChecked) {
+        MaterialTheme.colorScheme.onBackground.copy(alpha = 0.5f)
+    } else {
+        MaterialTheme.colorScheme.onBackground
     }
+    val textDecoration = if (isChecked) TextDecoration.LineThrough else TextDecoration.None
 
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .selectableGroup()
             .height(72.dp)
-            .clickable(onClick = { onSelect(item) }),
+            .clickable(onClick = onTogglePurchased),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
@@ -93,12 +100,15 @@ fun ProductItem(
             Text(
                 text = item.name,
                 style = MaterialTheme.typography.bodyLarge,
-                maxLines = 1
+                maxLines = 1,
+                color = textColor,
+                textDecoration = textDecoration
             )
             Text(
                 text = "${item.quantity} ${item.unit}",
                 style = MaterialTheme.typography.bodyMedium,
-                maxLines = 1
+                maxLines = 1,
+                color = textColor
             )
         }
         if (viewIconMenu) {
@@ -106,7 +116,9 @@ fun ProductItem(
                 painter = painterResource(R.drawable.ic_drag_handle),
                 contentDescription = null,
                 tint = colorTInt,
-                modifier = Modifier.padding(16.dp)
+                modifier = Modifier
+                    .padding(16.dp)
+                    .clickable(onClick = onDelete)
             )
         }
     }
@@ -119,7 +131,8 @@ private fun ProductsListScreenPreview() {
     ProductsListScreen(
         lists,
         paddingValues = PaddingValues(),
-        onDelete = { }
+        onDelete = { },
+        onTogglePurchased = { _, _ -> }
     )
 }
 

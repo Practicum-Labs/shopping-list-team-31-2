@@ -15,6 +15,7 @@ import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -34,6 +35,7 @@ import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.list.viewmodel.FieldType
 import ru.practicum.shoppinglist.ui.list.viewmodel.NewProductData
+import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -41,10 +43,10 @@ fun BottomSheetScreen(
     productData: NewProductData,
     onValueChange: (FieldType, String) -> Unit
 ) {
-    val units = stringArrayResource(R.array.units_lists) // .toList()
+    val units = stringArrayResource(R.array.units_lists)
 
     val name = productData.name
-    var quantity = productData.quantity
+    val quantity = productData.quantity
     val selectedUnit = productData.unit
 
     var expanded by remember { mutableStateOf(false) }
@@ -52,146 +54,170 @@ fun BottomSheetScreen(
     val valueIntQuantity = quantity.toIntOrNull() ?: 0
     val enabledButtonMinus = valueIntQuantity > 0
 
-    Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .imePadding(),
-        color = MaterialTheme.colorScheme.inverseSurface,
-    ) {
-        Column(
+    val focusColor = MaterialTheme.colorScheme.surfaceTint
+
+    ShoppingListTheme {
+        Surface(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+                .imePadding(),
+            color = MaterialTheme.colorScheme.inverseSurface,
         ) {
-            OutlinedTextField(
-                value = name,
-                onValueChange = { newName ->
-                    onValueChange(FieldType.NAME, newName)
-                },
-                placeholder = {
-                    Text(
-                        text = stringResource(R.string.product),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                label = {
-                    Text(
-                        text = stringResource(R.string.add_new_product)
-                    )
-                },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions(
-                    keyboardType = KeyboardType.Unspecified,
-                    imeAction = ImeAction.Next
-                ),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Row(
+            Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(64.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                verticalAlignment = Alignment.CenterVertically
-
+                    .padding(horizontal = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                // Ввод количества
                 OutlinedTextField(
-                    value = quantity,
-                    onValueChange = { newQuantity ->
-                        // Позволяем вводить только цифры
-                        if (newQuantity.isEmpty() || newQuantity.matches(Regex("\\d*"))) {
-                            onValueChange(FieldType.QUANTITY, newQuantity)
-                        }
+                    value = name,
+                    onValueChange = { newName ->
+                        onValueChange(FieldType.NAME, newName)
                     },
                     placeholder = {
                         Text(
-                            text = stringResource(R.string.quantity),
-                            color = MaterialTheme.colorScheme.onBackground,
-                            maxLines = 1
+                            text = stringResource(R.string.add_new_product),
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     },
                     label = {
                         Text(
-                            text = stringResource(R.string.quantity),
-                            maxLines = 1,
-                            overflow = TextOverflow.Ellipsis
+                            text = stringResource(R.string.product),
+                            color = if (name.isNotBlank()) focusColor else MaterialTheme.colorScheme.onBackground
+
                         )
                     },
                     singleLine = true,
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                    modifier = Modifier
-                        .weight(1f),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Unspecified,
+                        imeAction = ImeAction.Next
+                    ),
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedBorderColor = focusColor,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                        focusedLabelColor = focusColor,
+                        unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                        cursorColor = focusColor
+                    )
                 )
-                // Список с элементами
-                ExposedDropdownMenuBox(
-                    expanded = expanded,
-                    onExpandedChange = { expanded = !expanded },
+
+                Row(
                     modifier = Modifier
-                        .weight(1f)
+                        .fillMaxWidth()
+                        .height(64.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
+
                 ) {
                     OutlinedTextField(
-                        readOnly = true,
-                        value = selectedUnit,
-                        onValueChange = {},
-                        label = {
-                            Text(
-                                text = stringResource(R.string.units),
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis
-                            )
+                        value = quantity,
+                        onValueChange = { newQuantity ->
+                            if (newQuantity.isEmpty() || newQuantity.matches(Regex("\\d*"))) {
+                                onValueChange(FieldType.QUANTITY, newQuantity)
+                            }
                         },
                         placeholder = {
                             Text(
-                                text = stringResource(R.string.units),
+                                text = stringResource(R.string.quantity),
+                                color = MaterialTheme.colorScheme.onBackground,
+                                maxLines = 1
+                            )
+                        },
+                        label = {
+                            Text(
+                                text = stringResource(R.string.quantity),
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
+                                color = if (quantity.isNotBlank()) focusColor else MaterialTheme.colorScheme.onBackground
                             )
                         },
                         singleLine = true,
-                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
-                        colors = ExposedDropdownMenuDefaults.outlinedTextFieldColors(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                         modifier = Modifier
-                            .menuAnchor(
-                                type = ExposedDropdownMenuAnchorType.PrimaryNotEditable
-                            )
+                            .weight(1f),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = focusColor,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                            focusedLabelColor = focusColor,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                            cursorColor = focusColor
+                        )
                     )
-
-                    ExposedDropdownMenu(
+                    ExposedDropdownMenuBox(
                         expanded = expanded,
-                        onDismissRequest = { expanded = false }
+                        onExpandedChange = { expanded = !expanded },
+                        modifier = Modifier
+                            .weight(1f)
                     ) {
-                        units.forEach { unit ->
-                            DropdownMenuItem(
-                                text = { Text(unit) },
-                                onClick = {
-                                    onValueChange(FieldType.UNIT, unit)
-                                    expanded = false
-                                }
+                        OutlinedTextField(
+                            readOnly = true,
+                            value = selectedUnit,
+                            onValueChange = {},
+                            label = {
+                                Text(
+                                    text = stringResource(R.string.units),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                    color = if (selectedUnit.isNotBlank()) focusColor else MaterialTheme.colorScheme.onBackground
+                                )
+                            },
+                            placeholder = {
+                                Text(
+                                    text = stringResource(R.string.units),
+                                    maxLines = 1,
+                                    overflow = TextOverflow.Ellipsis,
+                                )
+                            },
+                            singleLine = true,
+                            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                            modifier = Modifier
+                                .menuAnchor(
+                                    type = ExposedDropdownMenuAnchorType.PrimaryNotEditable
+                                ),
+                            colors = OutlinedTextFieldDefaults.colors(
+                                focusedBorderColor = focusColor,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline,
+                                focusedLabelColor = focusColor,
+                                unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                                cursorColor = focusColor
                             )
+                        )
+
+                        ExposedDropdownMenu(
+                            expanded = expanded,
+                            onDismissRequest = { expanded = false }
+                        ) {
+                            units.forEach { unit ->
+                                DropdownMenuItem(
+                                    text = { Text(unit) },
+                                    onClick = {
+                                        onValueChange(FieldType.UNIT, unit)
+                                        expanded = false
+                                    }
+                                )
+                            }
                         }
                     }
+
+                    RoundButtonScreen(
+                        onClick = {
+                            val newQuantity = modifyIntToString(quantity, false)
+                            onValueChange(FieldType.QUANTITY, newQuantity)
+                        },
+                        idIcon = R.drawable.ic_remove,
+                        enabled = enabledButtonMinus
+                    )
+
+                    RoundButtonScreen(
+                        onClick = {
+                            val newQuantity = modifyIntToString(quantity, true)
+                            onValueChange(FieldType.QUANTITY, newQuantity)
+                        },
+                        idIcon = R.drawable.ic_add,
+                        enabled = true
+                    )
                 }
-
-                // Кнопки
-                RoundButtonScreen(
-                    onClick = {
-                        val newQuantity = modifyIntToString(quantity, false)
-                        onValueChange(FieldType.QUANTITY, newQuantity)
-                    },
-                    idIcon = R.drawable.ic_remove,
-                    enabled = enabledButtonMinus
-                )
-
-                RoundButtonScreen(
-                    onClick = {
-                        val newQuantity = modifyIntToString(quantity, true)
-                        onValueChange(FieldType.QUANTITY, newQuantity)
-                    },
-                    idIcon = R.drawable.ic_add,
-                    enabled = true
-                )
             }
         }
     }
@@ -209,8 +235,10 @@ fun modifyIntToString(numberAsString: String, increment: Boolean = true): String
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun BottomSheetScreenPreview() {
-    BottomSheetScreen(
-        productData = NewProductData("", "", ""),
-        onValueChange = { fieldType, value -> }
-    )
+    ShoppingListTheme {
+        BottomSheetScreen(
+            productData = NewProductData("", "", ""),
+            onValueChange = { fieldType, value -> }
+        )
+    }
 }

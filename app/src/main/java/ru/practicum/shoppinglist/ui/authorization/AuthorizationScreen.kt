@@ -33,7 +33,7 @@ fun AuthorizationScreen(
     registration: () -> Unit = {},
     recoverPassword: () -> Unit = {},
     login: () -> Unit = {}
-    ) {
+) {
     var value by remember { mutableStateOf("") }
     var errorMessage by remember { mutableStateOf("ERROR!") }
     ShoppingListTheme {
@@ -94,7 +94,10 @@ fun AuthorizationScreen(
 
 @Composable
 fun AuthField(
-    label: String, value: String, onValueChange: (String) -> Unit = {}, placeholder: String
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit = {},
+    placeholder: String
 ) {
     OutlinedTextField(
         modifier = Modifier.fillMaxWidth(),

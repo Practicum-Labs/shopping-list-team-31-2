@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -25,7 +26,11 @@ import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Composable
-fun BottomSheetMenu() {
+fun BottomSheetMenu(
+    onSortClick: () -> Unit,
+    onDeleteAllClick: () -> Unit,
+    onClearPurchasedClick: () -> Unit,
+) {
     ShoppingListTheme {
         Surface(
             modifier = Modifier.fillMaxWidth(),
@@ -38,18 +43,18 @@ fun BottomSheetMenu() {
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 ViewRowMenu(
-                    onClick = {},
+                    onClick = onSortClick,
                     idIcon = R.drawable.ic_swap_vert,
                     title = stringResource(R.string.sort),
                     description = stringResource(R.string.sort_alpha)
                 )
                 ViewRowMenu(
-                    onClick = {},
+                    onClick = onDeleteAllClick,
                     idIcon = R.drawable.ic_delete,
-                    title = stringResource(R.string.delete)
+                    title = stringResource(R.string.delete_all)
                 )
                 ViewRowMenu(
-                    onClick = {},
+                    onClick = onClearPurchasedClick,
                     idIcon = R.drawable.ic_clear,
                     title = stringResource(R.string.clear_purchased)
                 )
@@ -96,6 +101,7 @@ private fun ViewRowMenu(
     @DrawableRes idIcon: Int = 0,
     title: String = "",
     description: String = "",
+    descriptionColor: Color = Color(0xFF34C759),
     showRadioButton: Boolean = false,
     onSelect: () -> Unit = {}
 ) {
@@ -126,7 +132,7 @@ private fun ViewRowMenu(
                     text = description,
                     style = MaterialTheme.typography.bodyMedium,
                     maxLines = 1,
-                    color = MaterialTheme.colorScheme.inverseOnSurface
+                    color = descriptionColor
                 )
             }
         }
@@ -147,7 +153,11 @@ private fun ViewRowMenu(
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 private fun BottomSheetMenuPreview() {
-    BottomSheetMenu()
+    BottomSheetMenu(
+        onSortClick = {},
+        onDeleteAllClick = {},
+        onClearPurchasedClick = {}
+    )
 }
 
 @Preview(showBackground = true, showSystemUi = true)

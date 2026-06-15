@@ -11,6 +11,15 @@ sealed class ProductIntent {
     data object ShowBottomSheet : ProductIntent()
     data object HideBottomSheet : ProductIntent()
     data class OnInputValueChanged(val fieldType: FieldType, val value: String) : ProductIntent()
+
+    data object SortProductsAlphabetically : ProductIntent()
+    data object DeleteAllProducts : ProductIntent()
+    data object DeletePurchasedProducts : ProductIntent()
+
+    data object ShowSortMenu : ProductIntent()
+    data object HideSortMenu : ProductIntent()
+
+    data class ToggleProductPurchased(val productId: Long, val isPurchased: Boolean) : ProductIntent()
 }
 
 data class NewProductData(
@@ -23,4 +32,5 @@ enum class FieldType { NAME, QUANTITY, UNIT }
 
 sealed class UiEffect {
     data class ShowError(val message: String) : UiEffect()
+    data class ShowMessage(val message: String) : UiEffect()
 }

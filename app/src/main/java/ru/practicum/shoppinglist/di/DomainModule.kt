@@ -5,6 +5,8 @@ import dagger.Module
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import ru.practicum.shoppinglist.domain.impl.ShoppingListInteractorImpl
+import ru.practicum.shoppinglist.domain.repository.ProductInteractor
+import ru.practicum.shoppinglist.domain.repository.ProductInteractorImpl
 import ru.practicum.shoppinglist.domain.repository.ShoppingListInteractor
 
 @Module
@@ -16,4 +18,8 @@ interface DomainModule {
         shoppingListInteractorImpl: ShoppingListInteractorImpl
     ): ShoppingListInteractor
 
+    @Binds
+    fun bindProductInteractor(
+        productInteractorImpl: ProductInteractorImpl
+    ): ProductInteractor
 }

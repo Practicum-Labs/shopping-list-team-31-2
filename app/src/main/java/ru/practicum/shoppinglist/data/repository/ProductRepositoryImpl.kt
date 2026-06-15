@@ -13,8 +13,9 @@ class ProductRepositoryImpl @Inject constructor(
     private val converter: Converters
 ) : ProductRepository {
 
-    override suspend fun addProduct(product: Product): Long {
-        return dao.insertProduct(converter.map(product))
+    override suspend fun addProduct(product: Product) {
+        val entity = converter.map(product)
+        dao.insertProduct(entity)
     }
 
     override suspend fun getProductById(id: Long): Product? {
