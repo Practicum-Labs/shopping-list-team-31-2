@@ -19,9 +19,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.practicum.shoppinglist.R
+import ru.practicum.shoppinglist.ui.authorization.AuthButton
 import ru.practicum.shoppinglist.ui.authorization.AuthField
 import ru.practicum.shoppinglist.ui.authorization.ErrorMessage
-import ru.practicum.shoppinglist.ui.authorization.ShoppingListsButton
 import ru.practicum.shoppinglist.ui.navigation.ActionBack
 import ru.practicum.shoppinglist.ui.navigation.AppBarTop
 import ru.practicum.shoppinglist.ui.registration.viewmodel.RegistrationIntent
@@ -102,7 +102,7 @@ fun RegistrationScreen(
                     isError = state.errorMessage != null,
                     errorMessage = state.errorMessage?.let { stringResource(it) }
                 )
-                ShoppingListsButton(
+                AuthButton(
                     buttonName = stringResource(R.string.register),
                     enabled = state.isRegistrationActive,
                     onClick = {

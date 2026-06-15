@@ -15,10 +15,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -26,7 +25,10 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import ru.practicum.shoppinglist.R
+import ru.practicum.shoppinglist.ui.authorization.viewmodel.AuthorizationIntent
+import ru.practicum.shoppinglist.ui.authorization.viewmodel.AuthorizationViewModel
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
 @Preview(showSystemUi = true)
@@ -34,10 +36,17 @@ import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 fun AuthorizationScreen(
     registration: () -> Unit = {},
     recoverPassword: () -> Unit = {},
-    login: () -> Unit = {}
+    login: () -> Unit = {},
+    viewModel: AuthorizationViewModel = hiltViewModel()
 ) {
-    var value by remember { mutableStateOf("") }
-    var errorMessage by remember { mutableStateOf("ERROR!") }
+    val state by viewModel.uiState.collectAsState()
+
+    LaunchedEffect(state.user) {
+        if (state.user != null) {
+            login()
+        }
+    }
+
     ShoppingListTheme {
         Column(
             modifier = Modifier
@@ -56,23 +65,33 @@ fun AuthorizationScreen(
 
             AuthField(
                 label = stringResource(R.string.email),
-                value = value,
-                onValueChange = { value = it },
+                value = state.currentEmail,
+                onValueChange = { newEmail ->
+                    viewModel.processIntent(AuthorizationIntent.SetCurrentEmail(newEmail))
+                },
                 placeholder = stringResource(R.string.enter_email),
                 isPassword = false
             )
             Spacer(modifier = Modifier.height(16.dp))
             AuthField(
                 label = stringResource(R.string.password),
-                value = value,
-                onValueChange = { value = it },
+                value = state.currentPassword,
+                onValueChange = { newPassword ->
+                    viewModel.processIntent(AuthorizationIntent.SetCurrentPassword(newPassword))
+                },
                 placeholder = stringResource(R.string.enter_password),
                 isPassword = true
             )
-            ErrorMessage(isError = true, errorMessage = errorMessage)
-            ShoppingListsButton(
+            ErrorMessage(
+                isError = state.errorMessage != null,
+                errorMessage = state.errorMessage?.let { stringResource(it) }
+            )
+            AuthButton(
                 buttonName = stringResource(R.string.login),
-                onClick = login
+                enabled = state.isAuthorizationActive,
+                onClick = {
+                    viewModel.processIntent(intent = AuthorizationIntent.Authorization)
+                }
             )
             Spacer(modifier = Modifier.height(40.dp))
             Row() {
