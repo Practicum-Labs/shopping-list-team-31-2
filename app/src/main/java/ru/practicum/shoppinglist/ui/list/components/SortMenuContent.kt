@@ -52,6 +52,7 @@ fun SortMenuContent(
     }
 }
 
+@Suppress("CognitiveComplexMethod")
 @Composable
 private fun MenuItem(
     icon: Int,

@@ -94,7 +94,7 @@ fun MenuSort() {
         }
     }
 }
-
+@Suppress("MagicNumber")
 @Composable
 private fun ViewRowMenu(
     onClick: () -> Unit = {},

@@ -15,6 +15,7 @@ import ru.practicum.shoppinglist.domain.model.Product
 import ru.practicum.shoppinglist.domain.repository.ProductInteractor
 import javax.inject.Inject
 
+@Suppress("TooGenericExceptionCaught", "SwallowedException", "LongParameterList")
 @HiltViewModel
 class ProductViewModel @Inject constructor(
     private val productInteractor: ProductInteractor,
@@ -82,6 +83,7 @@ class ProductViewModel @Inject constructor(
         viewModelScope.launch {
             try {
                 productInteractor.updateProduct(product)
+
             } catch (_: Exception) {
                 _uiEffect.emit(UiEffect.ShowError("Не удалось обновить продукт"))
             }
@@ -102,9 +104,9 @@ class ProductViewModel @Inject constructor(
         (_state.value as? ProductsState.Content)?.let { contentState ->
             val shouldCreateNewData = contentState.isFirstTimeOpening ||
                 contentState.newProductData == null ||
-                (contentState.newProductData?.name?.isBlank() == true &&
-                    contentState.newProductData?.quantity?.isBlank() == true &&
-                    contentState.newProductData?.unit?.isBlank() == true)
+                contentState.newProductData?.name?.isBlank() == true &&
+                contentState.newProductData?.quantity?.isBlank() == true &&
+                contentState.newProductData?.unit?.isBlank() == true
 
             val initialData = if (shouldCreateNewData) {
                 NewProductData("", "", "")
@@ -133,9 +135,9 @@ class ProductViewModel @Inject constructor(
             val data = contentState.newProductData
             var currentData = data
             if (currentData == null || (currentData.name.isBlank() && currentData.quantity.isBlank() && currentData.unit.isBlank())) {
-                val savedName = savedStateHandle.get<String>("saved_product_name") ?: ""
-                val savedQuantity = savedStateHandle.get<String>("saved_product_quantity") ?: ""
-                val savedUnit = savedStateHandle.get<String>("saved_product_unit") ?: ""
+                val savedName = savedStateHandle.get<String>(KEY_SAVED_NAME) ?: ""
+                val savedQuantity = savedStateHandle.get<String>(KEY_SAVED_QUANTITY) ?: ""
+                val savedUnit = savedStateHandle.get<String>(KEY_SAVED_UNIT) ?: ""
                 currentData = NewProductData(savedName, savedQuantity, savedUnit)
             }
 
@@ -163,9 +165,9 @@ class ProductViewModel @Inject constructor(
                 try {
                     productInteractor.addProduct(newProduct)
 
-                    savedStateHandle.remove<String>("saved_product_name")
-                    savedStateHandle.remove<String>("saved_product_quantity")
-                    savedStateHandle.remove<String>("saved_product_unit")
+                    savedStateHandle.remove<String>(KEY_SAVED_NAME)
+                    savedStateHandle.remove<String>(KEY_SAVED_QUANTITY)
+                    savedStateHandle.remove<String>(KEY_SAVED_UNIT)
 
                     _state.update { currentState ->
                         val current =
@@ -195,14 +197,15 @@ class ProductViewModel @Inject constructor(
                 FieldType.UNIT -> data.copy(unit = value)
             }
 
-            savedStateHandle["saved_product_name"] = updatedData.name
-            savedStateHandle["saved_product_quantity"] = updatedData.quantity
-            savedStateHandle["saved_product_unit"] = updatedData.unit
+            savedStateHandle[KEY_SAVED_NAME] = updatedData.name
+            savedStateHandle[KEY_SAVED_QUANTITY] = updatedData.quantity
+            savedStateHandle[KEY_SAVED_UNIT] = updatedData.unit
 
             _state.value = contentState.copy(newProductData = updatedData)
         }
     }
 
+    @Suppress("LabeledExpression")
     private fun loadProducts() {
         viewModelScope.launch {
             try {
@@ -351,6 +354,12 @@ class ProductViewModel @Inject constructor(
                 _uiEffect.emit(UiEffect.ShowError("Не удалось обновить статус товара"))
             }
         }
+    }
+
+    companion object {
+        private const val KEY_SAVED_NAME = "saved_product_name"
+        private const val KEY_SAVED_QUANTITY = "saved_product_quantity"
+        private const val KEY_SAVED_UNIT = "saved_product_unit"
     }
 
 }

@@ -1,5 +1,4 @@
 package ru.practicum.shoppinglist.ui.list
-
 import android.annotation.SuppressLint
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -55,6 +54,7 @@ import ru.practicum.shoppinglist.ui.navigation.AppBarTop
 import ru.practicum.shoppinglist.ui.theme.NoActiveElement
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
+@Suppress("CyclomaticComplexMethod", "CognitiveComplexMethod")
 @SuppressLint("RestrictedApi")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable

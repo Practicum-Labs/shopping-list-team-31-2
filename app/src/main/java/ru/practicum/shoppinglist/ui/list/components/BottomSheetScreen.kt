@@ -37,6 +37,7 @@ import ru.practicum.shoppinglist.ui.list.viewmodel.FieldType
 import ru.practicum.shoppinglist.ui.list.viewmodel.NewProductData
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
+@Suppress("CognitiveComplexMethod", "LongMethod")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BottomSheetScreen(
