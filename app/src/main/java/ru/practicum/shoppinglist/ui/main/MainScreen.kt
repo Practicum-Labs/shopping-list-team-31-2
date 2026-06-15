@@ -198,6 +198,7 @@ private fun MainScreenContent(
 
         MainScreenBody(
             state = state,
+            viewModel = viewModel,
             onIconClick = onIconClick,
             onListClick = onListClick
         )
@@ -251,6 +252,7 @@ private fun MainScreenTopBar(
 @Composable
 private fun MainScreenBody(
     state: ShoppingListState,
+    viewModel: ShoppingListViewModel,
     onIconClick: (Long) -> Unit,
     onListClick: (Long) -> Unit
 ) {
@@ -263,6 +265,7 @@ private fun MainScreenBody(
     } else {
         DefaultContent(
             state,
+            viewModel,
             onIconClick,
             onListClick
         )
@@ -307,6 +310,7 @@ private fun SearchResults(
 @Composable
 private fun DefaultContent(
     state: ShoppingListState,
+    viewModel: ShoppingListViewModel,
     onIconClick: (Long) -> Unit,
     onListClick: (Long) -> Unit
 ) {
@@ -317,7 +321,8 @@ private fun DefaultContent(
             modifier = Modifier.fillMaxSize(),
             lists = state.shoppingLists,
             onIconClick = onIconClick,
-            onListClick = onListClick
+            onListClick = onListClick,
+            viewModel = viewModel
         )
     }
 }

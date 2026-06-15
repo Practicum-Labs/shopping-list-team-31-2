@@ -1,5 +1,6 @@
 package ru.practicum.shoppinglist.ui.main.viewmodel
 
+import android.util.Log
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -62,6 +63,32 @@ class ShoppingListViewModel @Inject constructor(
             is ShoppingListIntent.ShowDeleteAllDialog -> showDeleteDialog()
 
             is ShoppingListIntent.HideDeleteAllDialog -> hideDeleteDialog()
+
+            is ShoppingListIntent.ShowRenameDialog -> {
+                _uiState.update {
+                    it.copy(dialogState = DialogState.Rename(intent.listId, intent.currentName))
+                }
+            }
+
+            is ShoppingListIntent.RenameList -> handleRenameList(intent.listId, intent.newName)
+
+            is ShoppingListIntent.ShowDeleteListDialog -> {
+                _uiState.update {
+                    it.copy(
+                        deleteDialogVisible = true,
+                        listToDeleteId = intent.listId,
+                        listToDeleteName = intent.listName
+                    )
+                }
+            }
+
+            is ShoppingListIntent.DeleteList -> handleDeleteList(intent.listId)
+
+            is ShoppingListIntent.CopyList -> handleCopyList(intent.listId, intent.listName)
+
+            is ShoppingListIntent.HideDeleteListDialog -> {
+                _uiState.update { it.copy(deleteDialogVisible = false) }
+            }
         }
     }
 
@@ -102,7 +129,7 @@ class ShoppingListViewModel @Inject constructor(
 
             val dialog = when (val current = state.dialogState) {
                 is DialogState.Create -> current.copy(name = intent.name)
-
+                is DialogState.Rename -> current.copy(currentName = intent.name)
                 else -> current
             }
 
@@ -277,10 +304,11 @@ class ShoppingListViewModel @Inject constructor(
                         renameDialogName = ""
                     )
                 }
-                handleGetAllItems() // обновляем список
+                handleGetAllItems()
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_rename))
                 _uiState.update { it.copy(isLoading = false) }
+                Log.e(LOG_TAG, LOG_MESSAGE + e)
             }
         }
     }
@@ -296,6 +324,8 @@ class ShoppingListViewModel @Inject constructor(
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_delete))
                 _uiState.update { it.copy(isLoading = false) }
+                Log.e(LOG_TAG, LOG_MESSAGE + e)
+
             }
         }
     }
@@ -313,14 +343,20 @@ class ShoppingListViewModel @Inject constructor(
                     name = newName,
                     icon = originalList?.icon ?: R.drawable.ic_list_alt
                 )
-                val newId = shoppingListInteractor.createShoppingList(newList)
+                shoppingListInteractor.createShoppingList(newList)
                 _effect.emit(ShoppingListEffect.ShowMessage(R.string.list_copied))
                 _uiState.update { it.copy(isLoading = false) }
                 handleGetAllItems()
             } catch (e: IOException) {
                 _effect.emit(ShoppingListEffect.ShowError(R.string.error_copy))
                 _uiState.update { it.copy(isLoading = false) }
+                Log.e(LOG_TAG, LOG_MESSAGE + e)
+
             }
         }
+    }
+    companion object {
+        const val LOG_TAG = "ShoppingListViewModel"
+        const val LOG_MESSAGE = "Error deleting list:"
     }
 }
