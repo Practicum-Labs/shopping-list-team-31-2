@@ -15,7 +15,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun ShoppingListsButton(
+fun AuthButton(
     onClick: () -> Unit = {},
     buttonName: String,
     enabled: Boolean = false
@@ -41,8 +41,8 @@ fun ShoppingListsButton(
 
 @Preview(showSystemUi = true)
 @Composable
-fun ShoppingListButtonPreview() {
-    ShoppingListsButton(
+fun AuthButtonPreview() {
+    AuthButton(
         buttonName = "Войти"
     )
 }

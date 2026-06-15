@@ -28,7 +28,9 @@ fun NavigationGraph(
 
         composable(Routes.AUTHORIZATION) {
             AuthorizationScreen(
-                login = { navController.navigate(Routes.MAIN) },
+                login = { navController.navigate(Routes.MAIN) {
+                    popUpTo(Routes.AUTHORIZATION) { inclusive = true }
+                } },
                 registration = { navController.navigate(Routes.REGISTRATION) },
                 recoverPassword = { navController.navigate(Routes.RECOVER_PASSWORD) }
             )
