@@ -25,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import ru.practicum.shoppinglist.R
 import ru.practicum.shoppinglist.ui.theme.ShoppingListTheme
 
+@Suppress("MagicNumber")
 private val DESCRIPTION_COLOR = Color(0xFF34C759)
 @Composable
 fun BottomSheetMenu(

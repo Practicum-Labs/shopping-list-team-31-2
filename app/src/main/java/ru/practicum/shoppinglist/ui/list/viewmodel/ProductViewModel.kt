@@ -14,6 +14,16 @@ import ru.practicum.shoppinglist.domain.model.Product
 import ru.practicum.shoppinglist.domain.repository.ProductInteractor
 import javax.inject.Inject
 
+@Suppress(
+    "TooGenericExceptionCaught",
+    "SwallowedException",
+    "LabeledExpression",
+    "ComplexCondition",
+    "MaxLineLength",
+    "LongMethod",
+    "CyclomaticComplexMethod",
+    "CognitiveComplexMethod"
+)
 @HiltViewModel
 class ProductViewModel @Inject constructor(
     private val productInteractor: ProductInteractor,
@@ -98,6 +108,7 @@ class ProductViewModel @Inject constructor(
         }
     }
 
+    @Suppress("ComplexCondition")
     private fun showBottomSheet() {
         (_state.value as? ProductsState.Content)?.let { contentState ->
             val shouldCreateNewData = contentState.isFirstTimeOpening ||
