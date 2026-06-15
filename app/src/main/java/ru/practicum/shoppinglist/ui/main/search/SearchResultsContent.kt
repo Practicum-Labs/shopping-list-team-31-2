@@ -29,7 +29,7 @@ import ru.practicum.shoppinglist.domain.model.ShoppingList
 fun SearchResultsContent(
     lists: List<ShoppingList>,
     onIconClick: (Long) -> Unit,
-    onListClick: (Long) -> Unit
+    onListClick: (Long, String) -> Unit
 ) {
     LazyColumn(
         modifier = Modifier.fillMaxSize()
@@ -38,7 +38,7 @@ fun SearchResultsContent(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .clickable { onListClick(item.id) }
+                    .clickable { onListClick(item.id, item.name) }
                     .padding(horizontal = 24.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {

@@ -7,6 +7,8 @@ import dagger.hilt.components.SingletonComponent
 import ru.practicum.shoppinglist.domain.impl.AuthInteractorImpl
 import ru.practicum.shoppinglist.domain.impl.ShoppingListInteractorImpl
 import ru.practicum.shoppinglist.domain.repository.AuthInteractor
+import ru.practicum.shoppinglist.domain.repository.ProductInteractor
+import ru.practicum.shoppinglist.domain.repository.ProductInteractorImpl
 import ru.practicum.shoppinglist.domain.repository.ShoppingListInteractor
 import javax.inject.Singleton
 
@@ -25,4 +27,10 @@ interface DomainModule {
     fun bindAuthInteractor(
         impl: AuthInteractorImpl
     ): AuthInteractor
+  
+    @Binds
+    @Singleton
+    fun bindProductInteractor(
+        productInteractorImpl: ProductInteractorImpl
+    ): ProductInteractor
 }

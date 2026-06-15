@@ -1,7 +1,6 @@
 package ru.practicum.shoppinglist.di
 
 import android.content.Context
-import androidx.room.Room
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -11,6 +10,7 @@ import ru.practicum.shoppinglist.data.local.dao.ProductDao
 import ru.practicum.shoppinglist.data.local.dao.ShoppingListDao
 import ru.practicum.shoppinglist.data.local.dao.UsersDao
 import ru.practicum.shoppinglist.data.local.database.AppDatabase
+import ru.practicum.shoppinglist.data.local.database.Converters
 import javax.inject.Singleton
 
 @Module
@@ -22,11 +22,7 @@ object DatabaseModule {
     fun provideAppDatabase(
         @ApplicationContext context: Context
     ): AppDatabase {
-        return Room.databaseBuilder(
-            context,
-            AppDatabase::class.java,
-            "shopping_list_database"
-        ).fallbackToDestructiveMigration(true).build()
+        return AppDatabase.getInstance(context)
     }
 
     @Provides
@@ -45,5 +41,10 @@ object DatabaseModule {
     @Singleton
     fun provideUsersDao(database: AppDatabase): UsersDao {
         return database.usersDao()
+        
+    @Provides
+    @Singleton    
+    fun provideConverters(): Converters {
+        return Converters()
     }
 }
