@@ -12,8 +12,8 @@ import ru.practicum.shoppinglist.data.local.entities.ShoppingListEntity
 import ru.practicum.shoppinglist.data.local.entities.UserEntity
 
 @Database(
-    entities = [ShoppingListEntity::class, ProductEntity::class],
-    version = 3,
+    entities = [ShoppingListEntity::class, ProductEntity::class, UserEntity::class],
+    version = 4,
     exportSchema = false
 )
 abstract class AppDatabase : RoomDatabase() {

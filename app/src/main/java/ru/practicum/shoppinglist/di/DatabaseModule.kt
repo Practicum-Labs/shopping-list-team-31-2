@@ -41,7 +41,8 @@ object DatabaseModule {
     @Singleton
     fun provideUsersDao(database: AppDatabase): UsersDao {
         return database.usersDao()
-        
+    }
+
     @Provides
     @Singleton    
     fun provideConverters(): Converters {

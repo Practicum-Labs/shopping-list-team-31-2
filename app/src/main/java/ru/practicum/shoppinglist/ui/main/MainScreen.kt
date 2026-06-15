@@ -254,7 +254,7 @@ private fun MainScreenBody(
     state: ShoppingListState,
     viewModel: ShoppingListViewModel,
     onIconClick: (Long) -> Unit,
-    onListClick: (Long) -> Unit
+    onListClick: (Long, String) -> Unit
 ) {
     if (state.isSearchActive) {
         SearchContent(
@@ -276,7 +276,7 @@ private fun MainScreenBody(
 private fun SearchContent(
     state: ShoppingListState,
     onIconClick: (Long) -> Unit,
-    onListClick: (Long) -> Unit
+    onListClick: (Long, String) -> Unit
 ) {
     if (state.searchQuery.isBlank()) {
         EmptySearchResult()
@@ -294,7 +294,7 @@ private fun SearchContent(
 private fun SearchResults(
     state: ShoppingListState,
     onIconClick: (Long) -> Unit,
-    onListClick: (Long) -> Unit
+    onListClick: (Long, String) -> Unit
 ) {
     if (state.displayLists.isEmpty()) {
         EmptySearchResult()
@@ -312,7 +312,7 @@ private fun DefaultContent(
     state: ShoppingListState,
     viewModel: ShoppingListViewModel,
     onIconClick: (Long) -> Unit,
-    onListClick: (Long) -> Unit
+    onListClick: (Long, String) -> Unit
 ) {
     if (state.shoppingLists.isEmpty()) {
         EmptyListsScreen()
