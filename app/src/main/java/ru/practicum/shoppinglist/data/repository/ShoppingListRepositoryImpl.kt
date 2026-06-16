@@ -17,8 +17,8 @@ class ShoppingListRepositoryImpl @Inject constructor(
         return newId
     }
 
-    override fun getShoppingLists(): Flow<List<ShoppingList>> {
-        return dao.getAllLists()
+    override fun getShoppingListsByUserId(userId: Long): Flow<List<ShoppingList>> {
+        return dao.getAllListsByUserId(userId)
             .map { entities ->
                 slm.mapEntityListsToShoppingLists(entities)
             }
@@ -28,8 +28,8 @@ class ShoppingListRepositoryImpl @Inject constructor(
         dao.updateIcon(id = id, icon = iconResId)
     }
 
-    override suspend fun delete() {
-        return dao.delete()
+    override suspend fun deleteAllListsByUserId(userId: Long) {
+        return dao.deleteAllListsByUserId(userId)
     }
 
     override suspend fun renameList(id: Long, newName: String) {

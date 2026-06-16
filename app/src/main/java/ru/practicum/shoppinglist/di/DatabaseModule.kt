@@ -44,7 +44,7 @@ object DatabaseModule {
     }
 
     @Provides
-    @Singleton    
+    @Singleton
     fun provideConverters(): Converters {
         return Converters()
     }
