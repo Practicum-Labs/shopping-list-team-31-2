@@ -20,7 +20,8 @@ private val DarkColorScheme = darkColorScheme(
     tertiaryContainer = ColorDarkCoContainer,
     surfaceTint = CheckBoxNoActiveDark,
     inverseSurface = BottomSheetColorDark,
-    inverseOnSurface = MenuTextColorDark
+    inverseOnSurface = MenuTextColorDark,
+    surfaceVariant = ButtonDarkTInt
 )
 
 private val LightColorScheme = lightColorScheme(
@@ -37,7 +38,8 @@ private val LightColorScheme = lightColorScheme(
     tertiaryContainer = ColorLightCoContainer,
     surfaceTint = RegularElementLight,
     inverseSurface = BottomSheetColor,
-    inverseOnSurface = MenuTextColoLight
+    inverseOnSurface = MenuTextColoLight,
+    surfaceVariant = ButtonLiteTInt
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),

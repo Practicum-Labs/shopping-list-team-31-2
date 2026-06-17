@@ -61,3 +61,6 @@ val MenuLightIcon = Color(0xFF50453A)
 val MenuDarkIcon = Color(0xFFD9C8B9)
 val BackgroundFabDark = Color(0x211A141F)
 val DriverColorLight = Color(0xFFCAC4D0)
+
+val ButtonLiteTInt = Color(0xFFFFFFFF)
+val ButtonDarkTInt = Color(0xFF241200)
