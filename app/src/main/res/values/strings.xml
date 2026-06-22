@@ -1,3 +1,98 @@
 <resources>
     <string name="app_name">Shopping List</string>
+    <string name="shopping_list">Cписок покупок</string>
+
+    <string name="hello">Добро пожаловать!</string>
+    <string name="register">Зарегистрироваться</string>
+    <string name="login">Войти</string>
+    <string name="email">E-mail</string>
+    <string name="enter_email">Введите e-mail</string>
+    <string name="password">Пароль</string>
+    <string name="enter_password">Введите пароль</string>
+    <string name="one_more_password">Еще раз пароль</string>
+    <string name="enter_one_more_password">Введите пароль еще раз</string>
+    <string name="recover_password">Восстановить пароль</string>
+    <string name="registration">Регистрация</string>
+    <string name="recovering_password">Восстановление пароля</string>
+    <string name="send_email_for_recover">Отправить письмо для восстановления пароля</string>
+
+    <string name="welcome_shopping_list">Добро пожаловать в Список покупок!</string>
+    <string name="welcome_description">Создавайте списки, добавляйте товары, отмечайте, что уже куплено</string>
+
+    <string name="shopping_no_lists">У вас пока нет списков</string>
+    <string name="shopping_no_lists_description">Нажмите на кнопку + ниже, чтобы создать свой первый список</string>
+
+    <string name="lists_are_empty">В списке покупок пока пусто</string>
+    <string name="lists_are_empty_description">Нажмите на кнопку + ниже,\n чтобы добавить товары</string>
+
+    <string name="search_no_result">Мы не смогли найти то, что вы искали</string>
+    <string name="search_no_result_description">Попробуйте изменить запрос или проверить написание</string>
+
+    <string name="main_lists">Мои списки</string>
+    <string name="name_list">Название списка</string>
+    <string name="new_list">Новый список</string>
+    <string name="add_list">Добавление списка</string>
+    <string name="rename_list">Переименование списка</string>
+    <string name="search_lists">Поиск списков</string>
+    <string name="clear_purchased">Очистить купленные</string>
+    <string name="delete_list">Удалить список "%s"?</string>
+    <string name="delete_all">Удалить все</string>
+    <string name="delete_all_purchased">Удалить все купленные товары?</string>
+    <string name="delete_all_lists">Удалить все списки?</string>
+    <string name="delete_all_products">Удалить все товары?</string>
+
+    <string name="sort">Сортировка</string>
+    <string name="sort_alpha">По алфавиту</string>
+    <string name="sort_custom">Пользовательская</string>
+
+    <string name="create">Создать</string>
+    <string name="rename">Переименовать</string>
+    <string name="cancel">Отмена</string>
+    <string name="delete">Удалить</string>
+
+    <string name="product">Товар</string>
+    <string name="quantity">Количество</string>
+    <string name="units">Единицы</string>
+    <string name="products">Продукты</string>
+    <string name="add_new_product">Добавить новый товар</string>
+
+    <string name="liter">л</string>
+    <string name="milliliter">мл</string>
+    <string name="packaging">уп</string>
+    <string name="pack">пач</string>
+    <string name="piece">шт</string>
+    <string name="kilogram">кг</string>
+    <string name="gram">г</string>
+
+    <string-array name="units_lists">
+        <item>л</item>
+        <item>мл</item>
+        <item>уп</item>
+        <item>пач</item>
+        <item>шт</item>
+        <item>кг</item>
+        <item>г</item>
+    </string-array>
+
+    <string name="error_empty_text">Поле не может быть пустым</string>
+    <string name="error_duplicate_name">Список с таким названием уже существует</string>
+    <string name="icon_not_update">Не удалось обновить иконку</string>
+    <string name="no_search_results">Ничего не найдено</string>
+
+    <string name="error_invalid_email">Некорректный email</string>
+    <string name="error_empty_fields">Не все поля заполнены</string>
+    <string name="error_password_length">Пароль должен содержать не менее 7 символов</string>
+    <string name="error_password_mismatch">Пароли не совпадают</string>
+    <string name="error_registration">Ошибка регистрации</string>
+    <string name="error_authorization">Неверный e-mail или пароль</string>
+
+    <string name="error_no_connection">Проверьте подключение к интернету</string>
+    <string name="error_conflict">Пользователь с таким email уже зарегистрирован</string>"
+    <string name="list_renamed">Список переименован в "%s"</string>
+    <string name="list_deleted">Список удален</string>
+    <string name="list_copied">Список скопирован</string>
+    <string name="error_rename">Ошибка переименования</string>
+    <string name="error_delete">Ошибка удаления</string>
+    <string name="error_copy">Ошибка копирования</string>
+
 </resources>
